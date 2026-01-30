@@ -1,9 +1,10 @@
 'use client'
 
 import Image from 'next/image'
-import { motion, Variants } from 'framer-motion'
+import { HTMLMotionProps, motion, Variants } from 'framer-motion'
 import { WhatsAppButton } from '../components/WhatsAppButton'
 import { Services } from '../components/Services'
+import { Suspense } from 'react'
 
 // Motion Variants
 const fadeInLeft: Variants = {
@@ -16,12 +17,20 @@ const fadeInRight: Variants = {
   visible: { opacity: 1, x: 0, transition: { duration: 0.8, ease: 'easeOut' } },
 }
 
+
+// Fade In animation configuration
+const fadeInProps : HTMLMotionProps<'div'>  = {
+  initial: { opacity: 0, y: 60 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, amount: 0.2 },
+  transition: { duration: 1, ease: 'easeInOut' },
+};
+
+
 export default function Hero() {
   return (
     <section className="w-full bg-white dark:bg-black relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-24 md:flex md:items-center md:justify-between gap-12">
-
-        -
         <motion.div
           className="md:w-1/2 text-center md:text-left"
           initial="hidden"
@@ -74,7 +83,15 @@ export default function Hero() {
           
       </div>
 
-      <Services />
+      {/* Latest Projects */}
+      <motion.div {...fadeInProps}>
+        <Suspense fallback={<div className="text-center">Loading Latest Projects...</div>}>
+          <Services />
+        </Suspense>
+      </motion.div>
+
+
+      
     </section>
   )
 }

@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Marco Eletrica",
+  title: "Marc Eletrica",
   description: "A Marc Elétrica conta com uma equipe preparada para prestar serviços qualificados em instalações elétricas residenciais, industriais e comerciais. Atuamos com instalação e manutenção em geral, além de instalações industriais e comerciais dos mais variados níveis de complexidade.",
 };
 

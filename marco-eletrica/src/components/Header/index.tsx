@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Image from 'next/image';
 import Link from "next/link";
 import { usePathname } from 'next/navigation';
+import { WhatsAppButton } from "../WhatsAppButton";
 
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -49,6 +50,7 @@ export function Header() {
         shadow-lg
         transition-transform duration-300
         ${visible ? 'translate-y-0' : '-translate-y-24'}
+        dark:bg-blue-600/80 dark:text-white
       `}
     >
       {!menuOpen && (
@@ -141,10 +143,15 @@ export function Header() {
 
           </Link>
 
-          <Link href="/" onClick={() => setMenuOpen(false)} className="text-2xl font-semibold">Home</Link>
-          <Link href="/us" onClick={() => setMenuOpen(false)} className="text-2xl font-semibold">Sobre Nós</Link>
-          <Link href="/services" onClick={() => setMenuOpen(false)} className="text-2xl font-semibold">Serviços</Link>
+          <Link href="/" onClick={() => setMenuOpen(false)} className="text-2xl font-semibold dark:text-white">Home</Link>
+          <Link href="/us" onClick={() => setMenuOpen(false)} className="text-2xl font-semibold dark:text-white">Sobre Nós</Link>
+          <Link href="/services" onClick={() => setMenuOpen(false)} className="text-2xl font-semibold dark:text-white">Serviços</Link>  
+          
+          
+          <WhatsAppButton />
         </nav>
+
+
       )}
     </header>
   );
