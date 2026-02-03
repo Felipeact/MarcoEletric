@@ -18,13 +18,13 @@ const services = [
     description:
       'Modernização da iluminação com tecnologia LED, reduzindo consumo e melhorando a iluminação.',
   },
-  {
-    title: 'Instalação Predial',
-    before: '/services/predial-before.jpeg',
-    after: '/services/predial-after.jpeg',
-    description:
-      'Adequação elétrica predial seguindo normas técnicas e garantindo confiabilidade.',
-  },
+  // {
+  //   title: 'Instalação Predial',
+  //   before: '/services/predial-before.jpeg',
+  //   after: '/services/predial-after.jpeg',
+  //   description:
+  //     'Adequação elétrica predial seguindo normas técnicas e garantindo confiabilidade.',
+  // },
 ]
 
 export function Services() {

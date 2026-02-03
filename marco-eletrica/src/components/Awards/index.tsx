@@ -86,7 +86,7 @@ export function Awards() {
                                 </div>
 
                                 <div className="mt-10 text-center space-y-3">
-                                    <h5 className="text-2xl font-semibold">
+                                    <h5 className="text-2xl font-semibold text-black">
                                         {card.title}
                                     </h5>
 
