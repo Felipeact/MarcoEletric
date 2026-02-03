@@ -1,98 +1,63 @@
 'use client'
 
-import Image from 'next/image'
+import { ServiceCard } from './ServiceCard'
 import { WhatsAppButton } from '../WhatsAppButton'
 
-
 const services = [
-    // {
-    //     title: 'Instalação Elétrica Residencial',
-    //     before: '/services/residential-before.jpeg',
-    //     after: '/services/residential-after.jpeg',
-    //     description: 'Atualização completa do sistema elétrico de uma residência, garantindo segurança e eficiência energética.'
-    // },
-    {
-        title: 'Quadro de Distribuição',
-        before: "/services/quadro-before.jpeg",
-        after: "/services/quadro-after.jpeg", 
-        description: 'Readequação do quadro de distribuição com substituição de todos dijuntores para melhor organização e segurança elétrica'
-    },
-    {
-        title: 'Iluminação Comercial',
-        before: '/services/lights-before.jpeg',
-        after: '/services/lights-after.jpeg',
-        description: 'Substituição de luminárias antigas por LED, proporcionando economia de energia e melhor iluminação no ambiente comercial.'
-    },
+  {
+    title: 'Quadro de Distribuição',
+    before: '/services/quadro-before.jpeg',
+    after: '/services/quadro-after.jpeg',
+    description:
+      'Readequação do quadro de distribuição com substituição de disjuntores para maior segurança e organização.',
+  },
+  {
+    title: 'Iluminação Comercial',
+    before: '/services/lights-before.jpeg',
+    after: '/services/lights-after.jpeg',
+    description:
+      'Modernização da iluminação com tecnologia LED, reduzindo consumo e melhorando a iluminação.',
+  },
+  {
+    title: 'Instalação Predial',
+    before: '/services/predial-before.jpeg',
+    after: '/services/predial-after.jpeg',
+    description:
+      'Adequação elétrica predial seguindo normas técnicas e garantindo confiabilidade.',
+  },
 ]
 
 export function Services() {
-    return (
-        <section className="mx-auto max-w-7xl px-4 md:px-6 lg:px-8 py-16">
+  return (
+    <section className="bg-blue-500 py-20">
+      <div className="max-w-7xl mx-auto px-4">
 
-            {/* Header */}
-            <header className="text-center mb-14">
-                <h2 className="text-3xl sm:text-5xl font-bold text-blue-600 mb-4">
-                    Serviços
-                </h2>
-                <p className="text-gray-500 max-w-2xl mx-auto">
-                    Veja alguns resultados reais do nosso trabalho antes e depois.
-                </p>
-            </header>
+        {/* Header */}
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-bold text-white">
+            Nossos Serviços
+          </h2>
+        </div>
 
-            {/* Showcase */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 justify-items-center">
-                {services.map((service, index) => (
-                    <div key={index} className="space-y-4  bg-gray-200 dark:bg-gray-800 p-8 rounded-lg">
-                        {/* Title */}
-                        <h3 className="text-xl font-semibold text-gray-800 dark:text-white text-center">
-                            {service.title}
-                        </h3>
+        {/* Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+          {services.map((service, index) => (
+            <ServiceCard
+              key={index}
+              title={service.title}
+              description={service.description}
+              before={service.before}
+              after={service.after}
+            />
+          ))}
+        </div>
 
-                        {/* Before / After */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-[80%] mx-auto">
+        {/* CTA */}
+        <div className="mt-16 flex justify-center">
+          <WhatsAppButton bgColor='bg-white' hoverBgColor='bg-white' textColor='text-blue-600'/>
+        </div>
 
-                            {/* BEFORE */}
-                            <div className="relative inline-block h-[80%] ">
-                                <span className="absolute top-3 left-3 z-10 bg-black/70 text-white text-xs px-3 py-1 rounded-full">
-                                    Antes
-                                </span>
-                                <Image
-                                    src={service.before}
-                                    alt={`${service.title} antes`}
-                                    width={360}
-                                    height={480}
-                                    className="rounded-lg h-[100%]"
-                                />
-                            </div>
-
-                            {/* AFTER */}
-                            <div className="relative inline-block h-[80%] ">
-                                <span className="absolute top-3 left-3 z-10 bg-blue-600 text-white text-xs px-3 py-1 rounded-full">
-                                    Depois
-                                </span>
-                                <Image
-                                    src={service.after}
-                                    alt={`${service.title} depois`}
-                                    width={360}
-                                    height={480}
-                                    className="rounded-lg h-[100%]"
-                                />
-                            </div>
-
-
-
-                        </div>
-                            <p className="md:text-xl text-center text-gray-700 dark:text-gray-300 mt-4">{service.description}</p>
-
-                    </div>
-                ))}
-            </div>
-
-            {/* CTA */}
-            <div className="mt-16 flex justify-center">
-                <WhatsAppButton />
-            </div>
-
-        </section>
-    )
+      </div>
+    </section>
+  )
 }

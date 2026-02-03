@@ -79,8 +79,8 @@ export function Header() {
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center">
             <Link href="/" className={navLinkClasses("/projects")}>Home</Link>
-            <Link href="/us" className={navLinkClasses("/blog")}>Sobre Nós</Link>
-            <Link href="/services" className="mx-4 hover:text-blue-600">Serviços</Link>
+            <Link href="/" className={navLinkClasses("/blog")}>Sobre Nós</Link>
+            <Link href="/" className="mx-4 hover:text-blue-600">Serviços</Link>
           </nav>
 
           {/* Mobile button */}
@@ -144,11 +144,11 @@ export function Header() {
           </Link>
 
           <Link href="/" onClick={() => setMenuOpen(false)} className="text-2xl font-semibold dark:text-white">Home</Link>
-          <Link href="/us" onClick={() => setMenuOpen(false)} className="text-2xl font-semibold dark:text-white">Sobre Nós</Link>
-          <Link href="/services" onClick={() => setMenuOpen(false)} className="text-2xl font-semibold dark:text-white">Serviços</Link>  
+          <Link href="/" onClick={() => setMenuOpen(false)} className="text-2xl font-semibold dark:text-white">Sobre Nós</Link>
+          <Link href="/" onClick={() => setMenuOpen(false)} className="text-2xl font-semibold dark:text-white">Serviços</Link>  
           
           
-          <WhatsAppButton />
+          <WhatsAppButton bgColor="bg-blue-500" hoverBgColor="bg-blue-600" textColor="text-white"/>
         </nav>
 
 
