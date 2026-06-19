@@ -1,158 +1,131 @@
-'use client'
+"use client";
 
 import { useState, useEffect, useRef } from "react";
-import Image from 'next/image';
 import Link from "next/link";
-import { usePathname } from 'next/navigation';
+import { Menu, X } from "lucide-react";
+import { Logo } from "../ui/Logo";
 import { WhatsAppButton } from "../WhatsAppButton";
+
+const navItems = [
+  { label: "Início", href: "#inicio" },
+  { label: "Serviços", href: "#servicos" },
+  { label: "Sobre", href: "#sobre" },
+  { label: "Certificados", href: "#certificados" },
+  { label: "Galeria", href: "#galeria" },
+  { label: "Contato", href: "#contato" },
+];
 
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [visible, setVisible] = useState(true);
-  const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
-  const pathname = usePathname();
+  const [scrolled, setScrolled] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const lastScrollY = useRef(0);
 
-  // Lock scroll when mobile menu is open
+  // Bloqueia o scroll do corpo quando o menu mobile está aberto
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "auto";
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [menuOpen]);
 
-  // Hide while scrolling, show after stop
+  // Esconde ao rolar para baixo, mostra ao rolar para cima
   useEffect(() => {
     const onScroll = () => {
-      setVisible(false);
-
-      if (scrollTimeout.current) {
-        clearTimeout(scrollTimeout.current);
-      }
-
-      scrollTimeout.current = setTimeout(() => {
-        setVisible(true);
-      }, 300);
+      const y = window.scrollY;
+      setScrolled(y > 20);
+      setHidden(y > lastScrollY.current && y > 120);
+      lastScrollY.current = y;
     };
-
-    window.addEventListener("scroll", onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const navLinkClasses = (href: string) =>
-    `mx-4 transition-colors hover:text-blue-600 ${
-      pathname === href ? 'font-bold text-blue-600' : 'text-black'
-    }`;
-
   return (
-    <header
-      className={`
-        fixed top-4 left-1/2 -translate-x-1/2
-        w-[90vw] md:w-[97vw]
-        z-50 rounded-2xl
-        bg-white/80 backdrop-blur-md
-        shadow-lg
-        transition-transform duration-300
-        ${visible ? 'translate-y-0' : '-translate-y-24'}
-        dark:bg-blue-600/80 dark:text-white
-      `}
-    >
-      {!menuOpen && (
-        <div className="flex items-center justify-between px-6 py-4">
-          {/* Logo */}
-          <Link href="/" className="flex items-cente gap-1">
-            
-            <span className="sm:block text-xl font-bold">
-              Marc
-            </span>
+    <>
+      {/* Barra fixa do topo (com transform para esconder/mostrar) */}
+      <header
+        className={`fixed inset-x-0 top-0 z-40 transition-all duration-300 ${
+          hidden ? "-translate-y-full" : "translate-y-0"
+        } ${
+          scrolled
+            ? "bg-brand-950/95 shadow-lg shadow-brand-950/20 backdrop-blur-md"
+            : "bg-gradient-to-b from-brand-950/80 to-transparent"
+        }`}
+      >
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6">
+          <Logo />
 
-            <Image
-              src="/raio-logo.svg"
-              alt="Logo"
-              width={20}
-              height={20}
-              priority
-            />
-
-             <span className="sm:block text-xl font-bold">
-              Eletrica
-            </span>
-
-          </Link>
-
-          {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center">
-            <Link href="/" className={navLinkClasses("/projects")}>Home</Link>
-            <Link href="/" className={navLinkClasses("/blog")}>Sobre Nós</Link>
-            <Link href="/" className="mx-4 hover:text-blue-600">Serviços</Link>
+          {/* Navegação desktop */}
+          <nav className="hidden items-center gap-1 lg:flex">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="rounded-lg px-3 py-2 text-sm font-medium text-blue-100 transition-colors hover:bg-white/10 hover:text-white"
+              >
+                {item.label}
+              </Link>
+            ))}
           </nav>
 
-          {/* Mobile button */}
+          <div className="hidden lg:block">
+            <WhatsAppButton
+              label="Orçamento grátis"
+              className="px-5 py-2.5 text-sm"
+            />
+          </div>
+
+          {/* Botão menu mobile */}
           <button
-            className="md:hidden"
+            className="rounded-lg p-2 text-white transition-colors hover:bg-white/10 lg:hidden"
             onClick={() => setMenuOpen(true)}
-            aria-label="Open menu"
+            aria-label="Abrir menu"
           >
-            <svg
-              className="w-7 h-7"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-              />
-            </svg>
+            <Menu className="h-7 w-7" />
           </button>
         </div>
-      )}
+      </header>
 
-      {/* Mobile Menu */}
-      {menuOpen && (
-        <nav className="md:hidden h-[90vh] flex flex-col items-center justify-center gap-8 relative">
+      {/*
+        Menu mobile (overlay) — renderizado FORA do <header> de propósito.
+        O header usa `transform` (esconder/mostrar), o que quebraria o
+        `position: fixed` deste overlay se ele fosse um descendente.
+      */}
+      <div
+        className={`fixed inset-0 z-50 bg-brand-950 transition-opacity duration-300 lg:hidden ${
+          menuOpen
+            ? "pointer-events-auto opacity-100"
+            : "pointer-events-none opacity-0"
+        }`}
+      >
+        <div className="flex items-center justify-between px-4 py-4 sm:px-6">
+          <Logo onClick={() => setMenuOpen(false)} />
           <button
-            className="absolute top-6 right-6"
+            className="rounded-lg p-2 text-white transition-colors hover:bg-white/10"
             onClick={() => setMenuOpen(false)}
-            aria-label="Close menu"
+            aria-label="Fechar menu"
           >
-            <svg
-              className="w-7 h-7"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <X className="h-7 w-7" />
           </button>
+        </div>
 
-          <Link href="/" className="flex items-cente gap-1">
-            
-            <span className="sm:block text-xl font-bold">
-              Marc
-            </span>
-
-            <Image
-              src="/raio-logo.svg"
-              alt="Logo"
-              width={20}
-              height={20}
-              priority
-            />
-
-             <span className="sm:block text-xl font-bold">
-              Eletrica
-            </span>
-
-          </Link>
-
-          <Link href="/" onClick={() => setMenuOpen(false)} className="text-2xl font-semibold dark:text-white">Home</Link>
-          <Link href="/" onClick={() => setMenuOpen(false)} className="text-2xl font-semibold dark:text-white">Sobre Nós</Link>
-          <Link href="/" onClick={() => setMenuOpen(false)} className="text-2xl font-semibold dark:text-white">Serviços</Link>  
-          
-          
-          <WhatsAppButton bgColor="bg-blue-500" hoverBgColor="bg-blue-600" textColor="text-white"/>
+        <nav className="flex flex-col items-center gap-2 px-6 pt-10">
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => setMenuOpen(false)}
+              className="w-full rounded-xl px-4 py-4 text-center text-xl font-semibold text-white transition-colors hover:bg-white/10"
+            >
+              {item.label}
+            </Link>
+          ))}
+          <div className="mt-6">
+            <WhatsAppButton label="Solicitar orçamento" />
+          </div>
         </nav>
-
-
-      )}
-    </header>
+      </div>
+    </>
   );
 }

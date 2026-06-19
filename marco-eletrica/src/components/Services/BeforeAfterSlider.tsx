@@ -1,50 +1,61 @@
-'use client'
+"use client";
 
 import {
   ReactCompareSlider,
   ReactCompareSliderImage,
-} from 'react-compare-slider'
+  ReactCompareSliderHandle,
+} from "react-compare-slider";
 
 type BeforeAfterSliderProps = {
-  before: string
-  after: string
-}
+  before: string;
+  after: string;
+};
 
-export function BeforeAfterSlider({
-  before,
-  after,
-}: BeforeAfterSliderProps) {
+export function BeforeAfterSlider({ before, after }: BeforeAfterSliderProps) {
   return (
-    <div className="relative w-full h-56 rounded-xl overflow-hidden flex items-center">
-
-      {/* BEFORE LABEL */}
-      <span className="absolute top-3 left-3 z-20 bg-black/70 text-white text-xs px-3 py-1 rounded-full">
+    <div className="relative h-64 w-full overflow-hidden">
+      {/* Etiqueta ANTES */}
+      <span className="absolute left-3 top-3 z-20 rounded-full bg-slate-900/75 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
         Antes
       </span>
 
-      {/* AFTER LABEL */}
-      <span className="absolute top-3 right-3 z-20 bg-blue-600 text-white text-xs px-3 py-1 rounded-full">
+      {/* Etiqueta DEPOIS */}
+      <span className="absolute right-3 top-3 z-20 rounded-full bg-brand-600 px-3 py-1 text-xs font-semibold text-white">
         Depois
       </span>
 
       <ReactCompareSlider
         position={50}
-        className="w-full h-full"
+        className="h-full w-full"
+        handle={
+          <ReactCompareSliderHandle
+            buttonStyle={{
+              backdropFilter: undefined,
+              border: 0,
+              boxShadow: "0 0 0 2px white, 0 4px 12px rgba(0,0,0,0.3)",
+              color: "white",
+              backgroundColor: "#2563eb",
+              height: 40,
+              width: 40,
+            }}
+            linesStyle={{ width: 2, color: "white" }}
+          />
+        }
         itemOne={
           <ReactCompareSliderImage
             src={before}
-            alt="Antes"
-            className="w-full h-full object-cover object-center"
+            alt="Antes do serviço"
+            className="h-full w-full object-cover object-center"
           />
         }
         itemTwo={
           <ReactCompareSliderImage
             src={after}
-            alt="Depois"
-            className="w-full h-full object-cover object-center"
+            alt="Depois do serviço"
+            className="h-full w-full object-cover object-center"
           />
         }
       />
     </div>
-  )
+  );
 }
