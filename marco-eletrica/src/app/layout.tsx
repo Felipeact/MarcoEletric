@@ -2,10 +2,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
-import { Header } from "../components/Header";
-import { Footer } from "../components/Footer";
-import { FloatingWhatsApp } from "../components/WhatsAppButton/Floating";
-import { siteConfig } from "../lib/site";
+import { siteConfig } from "@/lib/site";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -94,10 +91,7 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        <Header />
         {children}
-        <Footer />
-        <FloatingWhatsApp />
         <Analytics />
       </body>
     </html>

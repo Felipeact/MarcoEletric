@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Client {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  email     String?
+  address   String?
+  notes     String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  services   Service[]
+  quotations Quotation[]
+
+  @@index([name])
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  clientId    String
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  title       String
+  description String?  @db.Text
+  performedAt DateTime
+
+  laborValue   Decimal  @db.Decimal(10, 2)
+  materialCost Decimal? @db.Decimal(10, 2)
+
+  hasWarranty    Boolean   @default(false)
+  warrantyMonths Int?
+  warrantyUntil  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId, performedAt])
+  @@index([warrantyUntil])
+}
+
+model PriceItem {
+  id        String   @id @default(cuid())
+  category  String
+  name      String
+  unit      String
+  priceMin  Decimal  @db.Decimal(10, 2)
+  priceAvg  Decimal  @db.Decimal(10, 2)
+  priceMax  Decimal  @db.Decimal(10, 2)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  quotationItems QuotationItem[]
+
+  @@index([category])
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  description String
+  amount      Decimal  @db.Decimal(10, 2)
+  date        DateTime
+  category    String
+  notes       String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([date])
+}
+
+model Quotation {
+  id                 String   @id @default(cuid())
+  clientId           String?
+  client             Client?  @relation(fields: [clientId], references: [id])
+  clientNameSnapshot String?
+  status             String   @default("rascunho")
+  notes              String?  @db.Text
+  discountPercent    Decimal? @db.Decimal(5, 2)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  items QuotationItem[]
+
+  @@index([clientId])
+  @@index([status, createdAt])
+}
+
+model QuotationItem {
+  id                  String     @id @default(cuid())
+  quotationId         String
+  quotation           Quotation  @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+  priceItemId         String?
+  priceItem           PriceItem? @relation(fields: [priceItemId], references: [id])
+  descriptionSnapshot String
+  unitSnapshot        String
+  unitPrice           Decimal    @db.Decimal(10, 2)
+  quantity            Decimal    @default(1) @db.Decimal(10, 2)
+  lineTotal           Decimal    @db.Decimal(10, 2)
+
+  @@index([quotationId])
+}
