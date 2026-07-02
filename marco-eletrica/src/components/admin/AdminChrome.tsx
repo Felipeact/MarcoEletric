@@ -1,7 +1,8 @@
 import { LogOut } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { NavLinks } from "./NavLinks";
-import { MobileMenu } from "./MobileMenu";
+import { BottomNav } from "./BottomNav";
+import { PageTransition } from "./PageTransition";
 
 export function AdminChrome({ children }: { children: React.ReactNode }) {
   return (
@@ -28,11 +29,22 @@ export function AdminChrome({ children }: { children: React.ReactNode }) {
         <div className="min-w-0 flex-1">
           <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 sm:hidden">
             <Logo href="/admin" className="text-base text-slate-900" />
-            <MobileMenu />
+            <form action="/api/admin/logout" method="post">
+              <button
+                type="submit"
+                aria-label="Sair"
+                className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100"
+              >
+                <LogOut className="h-[18px] w-[18px]" />
+              </button>
+            </form>
           </header>
-          <main className="min-w-0 p-4 sm:p-8">{children}</main>
+          <main className="min-w-0 p-4 pb-24 sm:p-8 sm:pb-8">
+            <PageTransition>{children}</PageTransition>
+          </main>
         </div>
       </div>
+      <BottomNav />
     </div>
   );
 }

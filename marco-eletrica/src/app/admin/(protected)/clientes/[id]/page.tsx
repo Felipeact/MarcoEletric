@@ -8,6 +8,7 @@ import {
   cardClass,
 } from "@/components/admin/ui/formStyles";
 import { WarrantyBadge } from "@/components/admin/WarrantyBadge";
+import { isWarrantyActive } from "@/lib/format";
 
 export default async function ClienteDetailPage({
   params,
@@ -26,6 +27,9 @@ export default async function ClienteDetailPage({
   if (!client) notFound();
 
   const lastService = client.services[0];
+  const activeWarrantiesCount = client.services.filter(
+    (service) => service.hasWarranty && service.warrantyUntil && isWarrantyActive(service.warrantyUntil),
+  ).length;
 
   return (
     <div>
@@ -60,7 +64,19 @@ export default async function ClienteDetailPage({
         <h2 className="text-sm font-semibold uppercase text-slate-500">
           Situação atual
         </h2>
-        <div className="mt-3 flex flex-wrap items-center gap-4">
+        <div className="mt-3 flex flex-wrap items-center gap-6">
+          <div>
+            <p className="text-xs text-slate-500">Serviços registrados</p>
+            <p className="text-sm font-medium text-slate-900">
+              {client.services.length}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-slate-500">Em garantia agora</p>
+            <p className="text-sm font-medium text-slate-900">
+              {activeWarrantiesCount} de {client.services.length}
+            </p>
+          </div>
           <div>
             <p className="text-xs text-slate-500">Último serviço</p>
             <p className="text-sm font-medium text-slate-900">
@@ -68,7 +84,7 @@ export default async function ClienteDetailPage({
             </p>
           </div>
           <div>
-            <p className="text-xs text-slate-500">Garantia</p>
+            <p className="text-xs text-slate-500">Garantia do último serviço</p>
             {lastService ? (
               <WarrantyBadge
                 hasWarranty={lastService.hasWarranty}
@@ -105,8 +121,11 @@ export default async function ClienteDetailPage({
 
       <div className="mt-8">
         <h2 className="text-lg font-semibold text-slate-900">
-          Histórico de serviços
+          Histórico de serviços ({client.services.length})
         </h2>
+        <p className="mt-1 text-sm text-slate-500">
+          Cada serviço tem sua própria garantia, independente dos demais.
+        </p>
         <div className="mt-4 space-y-3">
           {client.services.map((service) => (
             <div key={service.id} className={cardClass}>

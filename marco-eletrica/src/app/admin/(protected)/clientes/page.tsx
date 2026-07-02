@@ -23,6 +23,7 @@ export default async function ClientesPage({
     orderBy: { name: "asc" },
     include: {
       services: { orderBy: { performedAt: "desc" }, take: 1 },
+      _count: { select: { services: true } },
     },
   });
 
@@ -51,8 +52,9 @@ export default async function ClientesPage({
             <tr>
               <th className="px-6 py-3">Nome</th>
               <th className="px-6 py-3">Telefone</th>
+              <th className="px-6 py-3">Serviços</th>
               <th className="px-6 py-3">Último serviço</th>
-              <th className="px-6 py-3">Garantia</th>
+              <th className="px-6 py-3">Garantia (último serviço)</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -73,6 +75,10 @@ export default async function ClientesPage({
                   </td>
                   <td className="px-6 py-4 text-slate-600">{client.phone}</td>
                   <td className="px-6 py-4 text-slate-600">
+                    {client._count.services}{" "}
+                    {client._count.services === 1 ? "serviço" : "serviços"}
+                  </td>
+                  <td className="px-6 py-4 text-slate-600">
                     {lastService
                       ? formatDateBR(lastService.performedAt)
                       : "Sem serviços"}
@@ -92,7 +98,7 @@ export default async function ClientesPage({
             })}
             {clients.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-6 py-8 text-center text-slate-500">
+                <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
                   Nenhum cliente encontrado.
                 </td>
               </tr>

@@ -62,3 +62,8 @@ export async function togglePriceItemActive(
   });
   revalidatePath("/admin/precos");
 }
+
+export async function deletePriceItem(priceItemId: string) {
+  await prisma.priceItem.delete({ where: { id: priceItemId } });
+  revalidatePath("/admin/precos");
+}
