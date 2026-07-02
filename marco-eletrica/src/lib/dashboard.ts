@@ -61,6 +61,8 @@ export async function getDashboardData(): Promise<DashboardData> {
     1,
   );
 
+  // Só serviços concluídos contam como receita realizada; "aberto"/"em
+  // andamento"/"em revisão" ainda não geraram faturamento.
   const [revenueRows, expenseRows, clientRows, categoryItems, pendingQuotations, upcomingServices] =
     await Promise.all([
       prisma.$queryRaw<{ month: string; revenue: number; materialcost: number }[]>`
@@ -68,7 +70,7 @@ export async function getDashboardData(): Promise<DashboardData> {
           COALESCE(SUM("laborValue"), 0)::float as revenue,
           COALESCE(SUM("materialCost"), 0)::float as materialcost
         FROM "Service"
-        WHERE "performedAt" >= ${earliestMonth}
+        WHERE "performedAt" >= ${earliestMonth} AND "status" = 'concluido'
         GROUP BY 1
       `,
       prisma.$queryRaw<{ month: string; expenses: number }[]>`

@@ -10,7 +10,10 @@ export default async function EditarServicoPage({
   const { id, serviceId } = await params;
   const [client, service] = await Promise.all([
     prisma.client.findUnique({ where: { id } }),
-    prisma.service.findUnique({ where: { id: serviceId } }),
+    prisma.service.findUnique({
+      where: { id: serviceId },
+      include: { items: true },
+    }),
   ]);
   if (!client || !service || service.clientId !== client.id) notFound();
 

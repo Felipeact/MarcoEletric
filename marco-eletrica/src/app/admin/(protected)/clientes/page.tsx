@@ -2,7 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { formatDateBR } from "@/lib/format";
 import { buttonPrimaryClass, cardClass, inputClass } from "@/components/admin/ui/formStyles";
-import { WarrantyBadge } from "@/components/admin/WarrantyBadge";
+import { toggleClientActive } from "@/lib/actions/clients";
 
 export default async function ClientesPage({
   searchParams,
@@ -54,7 +54,8 @@ export default async function ClientesPage({
               <th className="px-6 py-3">Telefone</th>
               <th className="px-6 py-3">Serviços</th>
               <th className="px-6 py-3">Último serviço</th>
-              <th className="px-6 py-3">Garantia (último serviço)</th>
+              <th className="px-6 py-3">Status</th>
+              <th className="px-6 py-3" />
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -63,7 +64,7 @@ export default async function ClientesPage({
               return (
                 <tr
                   key={client.id}
-                  className="cursor-pointer hover:bg-slate-50"
+                  className={!client.active ? "opacity-50" : undefined}
                 >
                   <td className="px-6 py-4">
                     <Link
@@ -84,21 +85,38 @@ export default async function ClientesPage({
                       : "Sem serviços"}
                   </td>
                   <td className="px-6 py-4">
-                    {lastService ? (
-                      <WarrantyBadge
-                        hasWarranty={lastService.hasWarranty}
-                        warrantyUntil={lastService.warrantyUntil}
-                      />
-                    ) : (
-                      "—"
-                    )}
+                    <span
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                        client.active
+                          ? "bg-emerald-100 text-emerald-700"
+                          : "bg-slate-100 text-slate-600"
+                      }`}
+                    >
+                      {client.active ? "Ativo" : "Inativo"}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <form
+                      action={toggleClientActive.bind(
+                        null,
+                        client.id,
+                        !client.active,
+                      )}
+                    >
+                      <button
+                        type="submit"
+                        className="text-sm font-medium text-brand-600 hover:text-brand-700"
+                      >
+                        {client.active ? "Desativar" : "Ativar"}
+                      </button>
+                    </form>
                   </td>
                 </tr>
               );
             })}
             {clients.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
+                <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
                   Nenhum cliente encontrado.
                 </td>
               </tr>

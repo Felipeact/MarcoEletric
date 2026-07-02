@@ -14,6 +14,7 @@ model Client {
   email     String?
   address   String?
   notes     String?  @db.Text
+  active    Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -24,15 +25,20 @@ model Client {
 }
 
 model Service {
-  id          String   @id @default(cuid())
-  clientId    String
-  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  title       String
-  description String?  @db.Text
-  performedAt DateTime
+  id            String   @id @default(cuid())
+  serviceNumber Int      @unique @default(autoincrement())
+  clientId      String
+  client        Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  title         String
+  description   String?  @db.Text
+  performedAt   DateTime
 
-  laborValue   Decimal  @db.Decimal(10, 2)
-  materialCost Decimal? @db.Decimal(10, 2)
+  status           String  @default("aberto")
+  completionReport String? @db.Text
+
+  laborValue    Decimal  @db.Decimal(10, 2)
+  marginPercent Decimal? @db.Decimal(5, 2)
+  materialCost  Decimal? @db.Decimal(10, 2)
 
   hasWarranty    Boolean   @default(false)
   warrantyMonths Int?
@@ -41,8 +47,21 @@ model Service {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  items ServiceItem[]
+
   @@index([clientId, performedAt])
   @@index([warrantyUntil])
+  @@index([status])
+}
+
+model ServiceItem {
+  id          String  @id @default(cuid())
+  serviceId   String
+  service     Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  description String
+  amount      Decimal @db.Decimal(10, 2)
+
+  @@index([serviceId])
 }
 
 model PriceItem {

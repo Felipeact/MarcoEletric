@@ -50,8 +50,8 @@ export async function updateClient(
   redirect(`/admin/clientes/${clientId}`);
 }
 
-export async function deleteClient(clientId: string) {
-  await prisma.client.delete({ where: { id: clientId } });
+export async function toggleClientActive(clientId: string, active: boolean) {
+  await prisma.client.update({ where: { id: clientId }, data: { active } });
   revalidatePath("/admin/clientes");
-  redirect("/admin/clientes");
+  revalidatePath(`/admin/clientes/${clientId}`);
 }
