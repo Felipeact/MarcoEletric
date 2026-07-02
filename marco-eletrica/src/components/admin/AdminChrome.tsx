@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { siteConfig } from "@/lib/site";
+import { Logo } from "@/components/ui/Logo";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "Dashboard" },
@@ -14,9 +14,8 @@ export function AdminChrome({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-slate-50">
       <div className="flex min-h-screen">
         <aside className="hidden w-64 flex-col border-r border-slate-200 bg-white px-4 py-6 sm:flex">
-          <div className="px-2 text-lg font-bold text-slate-900">
-            {siteConfig.shortName}
-            <span className="ml-1 text-brand-600">Admin</span>
+          <div className="px-2">
+            <Logo href="/admin" className="text-slate-900" />
           </div>
           <nav className="mt-8 flex flex-1 flex-col gap-1">
             {NAV_ITEMS.map((item) => (
@@ -39,12 +38,9 @@ export function AdminChrome({ children }: { children: React.ReactNode }) {
           </form>
         </aside>
 
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 sm:hidden">
-            <div className="text-base font-bold text-slate-900">
-              {siteConfig.shortName}
-              <span className="ml-1 text-brand-600">Admin</span>
-            </div>
+            <Logo href="/admin" className="text-slate-900 text-base" />
             <form action="/api/admin/logout" method="post">
               <button
                 type="submit"
@@ -65,7 +61,7 @@ export function AdminChrome({ children }: { children: React.ReactNode }) {
               </Link>
             ))}
           </nav>
-          <main className="p-4 sm:p-8">{children}</main>
+          <main className="min-w-0 p-4 sm:p-8">{children}</main>
         </div>
       </div>
     </div>
