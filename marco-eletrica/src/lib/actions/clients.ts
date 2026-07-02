@@ -8,6 +8,7 @@ import { emptyToUndefined } from "@/lib/validation/formData";
 
 export type ClientActionState = {
   error?: string;
+  existingClientId?: string;
 };
 
 function parseClientFormData(formData: FormData) {
@@ -17,8 +18,13 @@ function parseClientFormData(formData: FormData) {
     email: emptyToUndefined(formData.get("email")),
     address: emptyToUndefined(formData.get("address")),
     notes: emptyToUndefined(formData.get("notes")),
+    type: formData.get("type") || "residencial",
     isDemo: formData.get("isDemo") === "on",
   });
+}
+
+function normalizePhone(phone: string) {
+  return phone.replace(/\D/g, "");
 }
 
 export async function createClient(
@@ -28,6 +34,20 @@ export async function createClient(
   const parsed = parseClientFormData(formData);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Dados inválidos." };
+  }
+
+  const normalizedPhone = normalizePhone(parsed.data.phone);
+  const allClients = await prisma.client.findMany({
+    select: { id: true, name: true, phone: true },
+  });
+  const existing = allClients.find(
+    (c) => normalizePhone(c.phone) === normalizedPhone,
+  );
+  if (existing) {
+    return {
+      error: `Já existe um cliente cadastrado com esse telefone: ${existing.name}.`,
+      existingClientId: existing.id,
+    };
   }
 
   const client = await prisma.client.create({ data: parsed.data });

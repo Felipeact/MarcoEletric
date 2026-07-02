@@ -10,6 +10,7 @@ import {
 import { toggleClientActive } from "@/lib/actions/clients";
 import { ServiceStatusBadge } from "@/components/admin/ServiceStatusBadge";
 import { WarrantyBadge } from "@/components/admin/WarrantyBadge";
+import { ClientTypeBadge } from "@/components/admin/ClientTypeBadge";
 
 export default async function ClienteDetailPage({
   params,
@@ -35,6 +36,7 @@ export default async function ClienteDetailPage({
         <div>
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="text-2xl font-bold text-slate-900">{client.name}</h1>
+            <ClientTypeBadge type={client.type} />
             <span
               className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                 client.active

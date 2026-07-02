@@ -1,11 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import {
   createClient,
   updateClient,
   type ClientActionState,
 } from "@/lib/actions/clients";
+import { CLIENT_TYPES, CLIENT_TYPE_LABELS } from "@/lib/validation/client";
 import {
   buttonPrimaryClass,
   cardClass,
@@ -20,6 +22,7 @@ type Client = {
   email: string | null;
   address: string | null;
   notes: string | null;
+  type: string;
   isDemo: boolean;
 };
 
@@ -66,6 +69,23 @@ export function ClientForm({
           defaultValue={client?.phone}
           className={inputClass}
         />
+      </div>
+      <div>
+        <label htmlFor="type" className={labelClass}>
+          Tipo de cliente
+        </label>
+        <select
+          id="type"
+          name="type"
+          defaultValue={client?.type ?? "residencial"}
+          className={inputClass}
+        >
+          {CLIENT_TYPES.map((value) => (
+            <option key={value} value={value}>
+              {CLIENT_TYPE_LABELS[value]}
+            </option>
+          ))}
+        </select>
       </div>
       <div>
         <label htmlFor="email" className={labelClass}>
@@ -118,7 +138,17 @@ export function ClientForm({
         </label>
       </div>
       {state.error && (
-        <p className="text-sm font-medium text-red-600">{state.error}</p>
+        <div className="text-sm font-medium text-red-600">
+          <p>{state.error}</p>
+          {state.existingClientId && (
+            <Link
+              href={`/admin/clientes/${state.existingClientId}`}
+              className="mt-1 inline-block underline hover:text-red-700"
+            >
+              Ver cliente existente
+            </Link>
+          )}
+        </div>
       )}
       <button
         type="submit"
