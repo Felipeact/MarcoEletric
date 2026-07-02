@@ -15,6 +15,7 @@ model Client {
   address   String?
   notes     String?  @db.Text
   active    Boolean  @default(true)
+  isDemo    Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

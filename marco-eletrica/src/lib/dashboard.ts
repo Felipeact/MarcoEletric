@@ -112,10 +112,12 @@ export async function getDashboardData(
     upcomingServices,
   ] = await Promise.all([
     prisma.$queryRaw<{ month: string; revenue: number }[]>`
-      SELECT to_char(date_trunc('month', "performedAt"), 'YYYY-MM') as month,
-        COALESCE(SUM("laborValue"), 0)::float as revenue
-      FROM "Service"
-      WHERE "performedAt" >= ${chartYearStart} AND "performedAt" < ${chartYearEnd} AND "status" = 'concluido'
+      SELECT to_char(date_trunc('month', s."performedAt"), 'YYYY-MM') as month,
+        COALESCE(SUM(s."laborValue"), 0)::float as revenue
+      FROM "Service" s
+      JOIN "Client" c ON c.id = s."clientId"
+      WHERE s."performedAt" >= ${chartYearStart} AND s."performedAt" < ${chartYearEnd}
+        AND s."status" = 'concluido' AND c."isDemo" = false
       GROUP BY 1
     `,
     prisma.$queryRaw<{ month: string; expenses: number }[]>`
@@ -130,6 +132,7 @@ export async function getDashboardData(
       where: {
         status: "concluido",
         performedAt: { gte: selMonthStart, lt: selMonthEnd },
+        client: { isDemo: false },
       },
     }),
     prisma.expense.aggregate({
@@ -137,20 +140,29 @@ export async function getDashboardData(
       where: { date: { gte: selMonthStart, lt: selMonthEnd } },
     }),
     prisma.client.count({
-      where: { createdAt: { gte: selMonthStart, lt: selMonthEnd } },
+      where: { createdAt: { gte: selMonthStart, lt: selMonthEnd }, isDemo: false },
     }),
     prisma.quotationItem.findMany({
-      where: { quotation: { status: "aprovado" } },
+      where: {
+        quotation: {
+          status: "aprovado",
+          OR: [{ clientId: null }, { client: { isDemo: false } }],
+        },
+      },
       include: { priceItem: true },
     }),
     prisma.quotation.findMany({
-      where: { status: { in: ["rascunho", "enviado"] } },
+      where: {
+        status: { in: ["rascunho", "enviado"] },
+        OR: [{ clientId: null }, { client: { isDemo: false } }],
+      },
       include: { items: true },
     }),
     prisma.service.findMany({
       where: {
         hasWarranty: true,
         warrantyUntil: { gte: now, lte: addDays(now, 30) },
+        client: { isDemo: false },
       },
       include: { client: true },
       orderBy: { warrantyUntil: "asc" },

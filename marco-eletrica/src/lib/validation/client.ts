@@ -6,6 +6,7 @@ export const clientSchema = z.object({
   email: z.string().trim().optional(),
   address: z.string().trim().optional(),
   notes: z.string().trim().optional(),
+  isDemo: z.boolean(),
 });
 
 export type ClientInput = z.infer<typeof clientSchema>;

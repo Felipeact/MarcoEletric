@@ -1,6 +1,7 @@
 import {
   LayoutDashboard,
   Users,
+  Wrench,
   FileText,
   Tag,
   Receipt,
@@ -17,6 +18,7 @@ export type NavItem = {
 export const NAV_ITEMS: NavItem[] = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/clientes", label: "Clientes", icon: Users },
+  { href: "/admin/servicos", label: "Serviços", icon: Wrench },
   { href: "/admin/orcamentos", label: "Orçamentos", icon: FileText },
   {
     href: "/admin/precos",

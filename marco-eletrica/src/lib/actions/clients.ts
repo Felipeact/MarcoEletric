@@ -17,6 +17,7 @@ function parseClientFormData(formData: FormData) {
     email: emptyToUndefined(formData.get("email")),
     address: emptyToUndefined(formData.get("address")),
     notes: emptyToUndefined(formData.get("notes")),
+    isDemo: formData.get("isDemo") === "on",
   });
 }
 
