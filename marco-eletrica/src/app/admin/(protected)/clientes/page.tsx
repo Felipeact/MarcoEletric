@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { formatDateBR } from "@/lib/format";
 import { buttonPrimaryClass, cardClass, inputClass } from "@/components/admin/ui/formStyles";
 import { toggleClientActive } from "@/lib/actions/clients";
+import { ClientTypeBadge } from "@/components/admin/ClientTypeBadge";
 
 export default async function ClientesPage({
   searchParams,
@@ -51,6 +52,7 @@ export default async function ClientesPage({
           <thead className="border-b border-slate-200 text-xs font-semibold uppercase text-slate-500">
             <tr>
               <th className="px-6 py-3">Nome</th>
+              <th className="px-6 py-3">Tipo</th>
               <th className="px-6 py-3">Telefone</th>
               <th className="px-6 py-3">Serviços</th>
               <th className="px-6 py-3">Último serviço</th>
@@ -78,6 +80,9 @@ export default async function ClientesPage({
                         Demo
                       </span>
                     )}
+                  </td>
+                  <td className="px-6 py-4">
+                    <ClientTypeBadge type={client.type} />
                   </td>
                   <td className="px-6 py-4 text-slate-600">{client.phone}</td>
                   <td className="px-6 py-4 text-slate-600">
@@ -121,7 +126,7 @@ export default async function ClientesPage({
             })}
             {clients.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
+                <td colSpan={7} className="px-6 py-8 text-center text-slate-500">
                   Nenhum cliente encontrado.
                 </td>
               </tr>
