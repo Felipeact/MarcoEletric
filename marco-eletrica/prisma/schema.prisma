@@ -38,7 +38,6 @@ model Service {
 
   laborValue    Decimal  @db.Decimal(10, 2)
   marginPercent Decimal? @db.Decimal(5, 2)
-  materialCost  Decimal? @db.Decimal(10, 2)
 
   hasWarranty    Boolean   @default(false)
   warrantyMonths Int?
@@ -47,7 +46,8 @@ model Service {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  items ServiceItem[]
+  items      ServiceItem[]
+  quotations Quotation[]
 
   @@index([clientId, performedAt])
   @@index([warrantyUntil])
@@ -96,9 +96,12 @@ model Expense {
 
 model Quotation {
   id                 String   @id @default(cuid())
+  quotationNumber    Int      @unique @default(autoincrement())
   clientId           String?
   client             Client?  @relation(fields: [clientId], references: [id])
   clientNameSnapshot String?
+  serviceId          String?
+  service            Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
   status             String   @default("rascunho")
   notes              String?  @db.Text
   discountPercent    Decimal? @db.Decimal(5, 2)
@@ -109,6 +112,7 @@ model Quotation {
 
   @@index([clientId])
   @@index([status, createdAt])
+  @@index([serviceId])
 }
 
 model QuotationItem {

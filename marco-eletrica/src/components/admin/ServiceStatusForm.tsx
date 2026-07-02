@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useState } from "react";
 import { updateServiceStatus } from "@/lib/actions/services";
 import {
@@ -7,6 +8,7 @@ import {
   SERVICE_STATUS_LABELS,
 } from "@/lib/validation/service";
 import {
+  buttonPrimaryClass,
   buttonSecondaryClass,
   inputClass,
   labelClass,
@@ -31,6 +33,7 @@ export function ServiceStatusForm({
   const [state, formAction, isPending] = useActionState(action, {});
   const [status, setStatus] = useState(currentStatus);
   const [hasWarranty, setHasWarranty] = useState(currentHasWarranty);
+  const [needsFollowUpQuote, setNeedsFollowUpQuote] = useState(false);
 
   return (
     <form action={formAction} className="space-y-4">
@@ -63,7 +66,42 @@ export function ServiceStatusForm({
           <p className="text-sm font-medium text-slate-700">
             Serviço concluído — confirme a garantia e o relatório:
           </p>
-          <div className="mt-3 flex items-center gap-2">
+
+          <div className="mt-3">
+            <p className={labelClass}>Este serviço está totalmente resolvido?</p>
+            <div className="mt-1 flex flex-wrap gap-4">
+              <label className="flex items-center gap-2 text-sm text-slate-700">
+                <input
+                  type="radio"
+                  name="followUp"
+                  checked={!needsFollowUpQuote}
+                  onChange={() => setNeedsFollowUpQuote(false)}
+                  className="h-4 w-4 border-slate-300 text-brand-600 focus:ring-brand-500"
+                />
+                Sim, está tudo concluído
+              </label>
+              <label className="flex items-center gap-2 text-sm text-slate-700">
+                <input
+                  type="radio"
+                  name="followUp"
+                  checked={needsFollowUpQuote}
+                  onChange={() => setNeedsFollowUpQuote(true)}
+                  className="h-4 w-4 border-slate-300 text-brand-600 focus:ring-brand-500"
+                />
+                Não, será necessário um novo orçamento
+              </label>
+            </div>
+            {needsFollowUpQuote && (
+              <Link
+                href={`/admin/orcamentos/novo?clientId=${clientId}&serviceId=${serviceId}`}
+                className={`${buttonPrimaryClass} mt-3 inline-flex`}
+              >
+                Criar novo orçamento
+              </Link>
+            )}
+          </div>
+
+          <div className="mt-4 flex items-center gap-2">
             <input
               id="hasWarranty"
               name="hasWarranty"

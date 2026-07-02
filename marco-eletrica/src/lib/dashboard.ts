@@ -23,10 +23,12 @@ export type WarrantyExpiration = {
 };
 
 export type DashboardData = {
+  selectedMonth: string;
+  selectedYear: number;
   kpis: {
-    newClientsThisMonth: number;
-    revenueThisMonth: number;
-    profitThisMonth: number;
+    newClientsInMonth: number;
+    revenueInMonth: number;
+    profitInMonth: number;
     pendingQuotationsCount: number;
     pendingQuotationsValue: number;
   };
@@ -35,94 +37,143 @@ export type DashboardData = {
   upcomingWarranties: WarrantyExpiration[];
 };
 
-function lastTwelveMonthKeys(): { key: string; year: number; month: number }[] {
-  const now = new Date();
-  const keys: { key: string; year: number; month: number }[] = [];
-  for (let i = 11; i >= 0; i -= 1) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    keys.push({ key, year: d.getFullYear(), month: d.getMonth() });
-  }
-  return keys;
-}
-
 function monthLabel(year: number, month: number): string {
   return new Date(year, month, 1)
     .toLocaleDateString("pt-BR", { month: "short", year: "2-digit" })
     .replace(".", "");
 }
 
-export async function getDashboardData(): Promise<DashboardData> {
+export function monthKey(year: number, month: number): string {
+  return `${year}-${String(month + 1).padStart(2, "0")}`;
+}
+
+/** Parses a "YYYY-MM" query param into {year, month(0-based)}; defaults to the current month. */
+export function parseMonthParam(month?: string): {
+  year: number;
+  monthIndex: number;
+} {
+  if (month) {
+    const match = /^(\d{4})-(\d{2})$/.exec(month);
+    if (match) {
+      const year = Number(match[1]);
+      const monthIndex = Number(match[2]) - 1;
+      if (monthIndex >= 0 && monthIndex <= 11) return { year, monthIndex };
+    }
+  }
   const now = new Date();
-  const monthKeys = lastTwelveMonthKeys();
-  const earliestMonth = new Date(
-    monthKeys[0].year,
-    monthKeys[0].month,
-    1,
+  return { year: now.getFullYear(), monthIndex: now.getMonth() };
+}
+
+export function shiftMonthParam(month: string, delta: number): string {
+  const { year, monthIndex } = parseMonthParam(month);
+  const d = new Date(year, monthIndex + delta, 1);
+  return monthKey(d.getFullYear(), d.getMonth());
+}
+
+/** Parses a "YYYY" query param into a year number; defaults to the current year. */
+export function parseYearParam(year?: string): number {
+  const parsed = year ? Number(year) : NaN;
+  return Number.isInteger(parsed) ? parsed : new Date().getFullYear();
+}
+
+function yearMonthKeys(year: number): { key: string; year: number; month: number }[] {
+  return Array.from({ length: 12 }, (_, month) => ({
+    key: monthKey(year, month),
+    year,
+    month,
+  }));
+}
+
+export async function getDashboardData(
+  params: { month?: string; year?: string } = {},
+): Promise<DashboardData> {
+  const now = new Date();
+  const { year: selYear, monthIndex: selMonthIndex } = parseMonthParam(
+    params.month,
   );
+  const selectedMonth = monthKey(selYear, selMonthIndex);
+  const selectedYear = parseYearParam(params.year);
+
+  const selMonthStart = new Date(selYear, selMonthIndex, 1);
+  const selMonthEnd = new Date(selYear, selMonthIndex + 1, 1);
+  const chartYearStart = new Date(selectedYear, 0, 1);
+  const chartYearEnd = new Date(selectedYear + 1, 0, 1);
 
   // Só serviços concluídos contam como receita realizada; "aberto"/"em
   // andamento"/"em revisão" ainda não geraram faturamento.
-  const [revenueRows, expenseRows, clientRows, categoryItems, pendingQuotations, upcomingServices] =
-    await Promise.all([
-      prisma.$queryRaw<{ month: string; revenue: number; materialcost: number }[]>`
-        SELECT to_char(date_trunc('month', "performedAt"), 'YYYY-MM') as month,
-          COALESCE(SUM("laborValue"), 0)::float as revenue,
-          COALESCE(SUM("materialCost"), 0)::float as materialcost
-        FROM "Service"
-        WHERE "performedAt" >= ${earliestMonth} AND "status" = 'concluido'
-        GROUP BY 1
-      `,
-      prisma.$queryRaw<{ month: string; expenses: number }[]>`
-        SELECT to_char(date_trunc('month', "date"), 'YYYY-MM') as month,
-          COALESCE(SUM("amount"), 0)::float as expenses
-        FROM "Expense"
-        WHERE "date" >= ${earliestMonth}
-        GROUP BY 1
-      `,
-      prisma.$queryRaw<{ month: string; count: number }[]>`
-        SELECT to_char(date_trunc('month', "createdAt"), 'YYYY-MM') as month,
-          COUNT(*)::int as count
-        FROM "Client"
-        WHERE "createdAt" >= ${earliestMonth}
-        GROUP BY 1
-      `,
-      prisma.quotationItem.findMany({
-        where: { quotation: { status: "aprovado" } },
-        include: { priceItem: true },
-      }),
-      prisma.quotation.findMany({
-        where: { status: { in: ["rascunho", "enviado"] } },
-        include: { items: true },
-      }),
-      prisma.service.findMany({
-        where: {
-          hasWarranty: true,
-          warrantyUntil: { gte: now, lte: addDays(now, 30) },
-        },
-        include: { client: true },
-        orderBy: { warrantyUntil: "asc" },
-      }),
-    ]);
+  const [
+    revenueRows,
+    expenseRows,
+    revenueInMonthAgg,
+    expensesInMonthAgg,
+    newClientsInMonth,
+    categoryItems,
+    pendingQuotations,
+    upcomingServices,
+  ] = await Promise.all([
+    prisma.$queryRaw<{ month: string; revenue: number }[]>`
+      SELECT to_char(date_trunc('month', "performedAt"), 'YYYY-MM') as month,
+        COALESCE(SUM("laborValue"), 0)::float as revenue
+      FROM "Service"
+      WHERE "performedAt" >= ${chartYearStart} AND "performedAt" < ${chartYearEnd} AND "status" = 'concluido'
+      GROUP BY 1
+    `,
+    prisma.$queryRaw<{ month: string; expenses: number }[]>`
+      SELECT to_char(date_trunc('month', "date"), 'YYYY-MM') as month,
+        COALESCE(SUM("amount"), 0)::float as expenses
+      FROM "Expense"
+      WHERE "date" >= ${chartYearStart} AND "date" < ${chartYearEnd}
+      GROUP BY 1
+    `,
+    prisma.service.aggregate({
+      _sum: { laborValue: true },
+      where: {
+        status: "concluido",
+        performedAt: { gte: selMonthStart, lt: selMonthEnd },
+      },
+    }),
+    prisma.expense.aggregate({
+      _sum: { amount: true },
+      where: { date: { gte: selMonthStart, lt: selMonthEnd } },
+    }),
+    prisma.client.count({
+      where: { createdAt: { gte: selMonthStart, lt: selMonthEnd } },
+    }),
+    prisma.quotationItem.findMany({
+      where: { quotation: { status: "aprovado" } },
+      include: { priceItem: true },
+    }),
+    prisma.quotation.findMany({
+      where: { status: { in: ["rascunho", "enviado"] } },
+      include: { items: true },
+    }),
+    prisma.service.findMany({
+      where: {
+        hasWarranty: true,
+        warrantyUntil: { gte: now, lte: addDays(now, 30) },
+      },
+      include: { client: true },
+      orderBy: { warrantyUntil: "asc" },
+    }),
+  ]);
 
-  const revenueByMonth = new Map(
-    revenueRows.map((r) => [r.month, { revenue: r.revenue, materialCost: r.materialcost }]),
+  const revenueByMonth = new Map(revenueRows.map((r) => [r.month, r.revenue]));
+  const expensesByMonth = new Map(
+    expenseRows.map((r) => [r.month, r.expenses]),
   );
-  const expensesByMonth = new Map(expenseRows.map((r) => [r.month, r.expenses]));
-  const clientsByMonth = new Map(clientRows.map((r) => [r.month, r.count]));
 
-  const monthly: MonthlyPoint[] = monthKeys.map(({ key, year, month }) => {
-    const revenueData = revenueByMonth.get(key);
-    const revenue = revenueData?.revenue ?? 0;
-    const materialCost = revenueData?.materialCost ?? 0;
-    const expenses = expensesByMonth.get(key) ?? 0;
-    return {
-      month: key,
-      label: monthLabel(year, month),
-      revenue,
-      profit: revenue - materialCost - expenses,
-    };
-  });
+  const monthly: MonthlyPoint[] = yearMonthKeys(selectedYear).map(
+    ({ key, year, month }) => {
+      const revenue = revenueByMonth.get(key) ?? 0;
+      const expenses = expensesByMonth.get(key) ?? 0;
+      return {
+        month: key,
+        label: monthLabel(year, month),
+        revenue,
+        profit: revenue - expenses,
+      };
+    },
+  );
 
   const categoryTotals = new Map<string, number>();
   for (const item of categoryItems) {
@@ -146,19 +197,16 @@ export async function getDashboardData(): Promise<DashboardData> {
     return sum + total;
   }, 0);
 
-  const currentMonthKey = monthKeys[monthKeys.length - 1].key;
-  const revenueThisMonth = revenueByMonth.get(currentMonthKey)?.revenue ?? 0;
-  const materialCostThisMonth =
-    revenueByMonth.get(currentMonthKey)?.materialCost ?? 0;
-  const expensesThisMonth = expensesByMonth.get(currentMonthKey) ?? 0;
-  const newClientsThisMonth = clientsByMonth.get(currentMonthKey) ?? 0;
+  const revenueInMonth = Number(revenueInMonthAgg._sum.laborValue ?? 0);
+  const expensesInMonth = Number(expensesInMonthAgg._sum.amount ?? 0);
 
   return {
+    selectedMonth,
+    selectedYear,
     kpis: {
-      newClientsThisMonth,
-      revenueThisMonth,
-      profitThisMonth:
-        revenueThisMonth - materialCostThisMonth - expensesThisMonth,
+      newClientsInMonth,
+      revenueInMonth,
+      profitInMonth: revenueInMonth - expensesInMonth,
       pendingQuotationsCount: pendingQuotations.length,
       pendingQuotationsValue,
     },

@@ -155,14 +155,6 @@ export default async function ClienteDetailPage({
                     {formatCurrencyBRL(Number(service.laborValue))}
                   </span>
                 </div>
-                {service.materialCost != null && (
-                  <div>
-                    <span className="text-slate-500">Material: </span>
-                    <span className="font-medium text-slate-900">
-                      {formatCurrencyBRL(Number(service.materialCost))}
-                    </span>
-                  </div>
-                )}
               </div>
             </Link>
           ))}

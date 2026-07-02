@@ -31,6 +31,7 @@ export default async function OrcamentosPage() {
         <table className="w-full text-left text-sm">
           <thead className="border-b border-slate-200 text-xs font-semibold uppercase text-slate-500">
             <tr>
+              <th className="px-6 py-3">Nº</th>
               <th className="px-6 py-3">Cliente</th>
               <th className="px-6 py-3">Data</th>
               <th className="px-6 py-3">Total</th>
@@ -49,6 +50,9 @@ export default async function OrcamentosPage() {
                 "Sem cliente";
               return (
                 <tr key={quotation.id} className="hover:bg-slate-50">
+                  <td className="px-6 py-4 text-slate-500">
+                    #{String(quotation.quotationNumber).padStart(4, "0")}
+                  </td>
                   <td className="px-6 py-4">
                     <Link
                       href={`/admin/orcamentos/${quotation.id}`}
@@ -79,7 +83,7 @@ export default async function OrcamentosPage() {
             })}
             {quotations.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-6 py-8 text-center text-slate-500">
+                <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
                   Nenhum orçamento criado ainda.
                 </td>
               </tr>

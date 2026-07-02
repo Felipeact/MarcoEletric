@@ -23,6 +23,13 @@ export default async function EditarOrcamentoPage({
 
   if (!quotation) notFound();
 
+  const linkedService = quotation.serviceId
+    ? await prisma.service.findUnique({
+        where: { id: quotation.serviceId },
+        select: { id: true, serviceNumber: true, title: true, clientId: true },
+      })
+    : null;
+
   const catalog = priceItems.map((item) => ({
     id: item.id,
     category: item.category,
@@ -41,6 +48,7 @@ export default async function EditarOrcamentoPage({
           mode="edit"
           clients={clients}
           catalog={catalog}
+          linkedService={linkedService ?? undefined}
           quotation={{
             id: quotation.id,
             clientId: quotation.clientId,

@@ -4,11 +4,11 @@ import { QuotationBuilder } from "../QuotationBuilder";
 export default async function NovoOrcamentoPage({
   searchParams,
 }: {
-  searchParams: Promise<{ clientId?: string }>;
+  searchParams: Promise<{ clientId?: string; serviceId?: string }>;
 }) {
-  const { clientId } = await searchParams;
+  const { clientId, serviceId } = await searchParams;
 
-  const [clients, priceItems] = await Promise.all([
+  const [clients, priceItems, service] = await Promise.all([
     prisma.client.findMany({
       orderBy: { name: "asc" },
       select: { id: true, name: true, phone: true },
@@ -17,6 +17,12 @@ export default async function NovoOrcamentoPage({
       where: { active: true },
       orderBy: [{ category: "asc" }, { name: "asc" }],
     }),
+    serviceId
+      ? prisma.service.findUnique({
+          where: { id: serviceId },
+          select: { id: true, serviceNumber: true, title: true, clientId: true },
+        })
+      : null,
   ]);
 
   const catalog = priceItems.map((item) => ({
@@ -37,7 +43,8 @@ export default async function NovoOrcamentoPage({
           mode="create"
           clients={clients}
           catalog={catalog}
-          defaultClientId={clientId}
+          defaultClientId={clientId ?? service?.clientId}
+          linkedService={service ?? undefined}
         />
       </div>
     </div>

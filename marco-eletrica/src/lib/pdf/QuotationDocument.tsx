@@ -102,6 +102,7 @@ const styles = StyleSheet.create({
 
 export type QuotationPdfData = {
   id: string;
+  quotationNumber: number;
   status: string;
   createdAt: Date;
   notes: string | null;
@@ -109,6 +110,7 @@ export type QuotationPdfData = {
   clientName: string;
   clientPhone: string | null;
   clientAddress: string | null;
+  serviceReference: string | null;
   items: {
     descriptionSnapshot: string;
     unitSnapshot: string;
@@ -137,10 +139,16 @@ export function QuotationDocument({ quotation }: { quotation: QuotationPdfData }
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Orçamento</Text>
+          <Text>
+            Nº {String(quotation.quotationNumber).padStart(4, "0")}
+          </Text>
           <Text>Data de emissão: {formatDateBR(quotation.createdAt)}</Text>
           <Text>
             Status: {QUOTATION_STATUS_LABELS[quotation.status] ?? quotation.status}
           </Text>
+          {quotation.serviceReference && (
+            <Text>Referente ao serviço: {quotation.serviceReference}</Text>
+          )}
         </View>
 
         <View style={styles.section}>

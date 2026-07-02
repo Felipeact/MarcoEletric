@@ -137,12 +137,6 @@ export default async function ServiceDetailPage({
             <span>Valor cobrado (mão de obra)</span>
             <span>{formatCurrencyBRL(Number(service.laborValue))}</span>
           </div>
-          {service.materialCost != null && (
-            <div className="flex justify-between text-slate-600">
-              <span>Custo de material</span>
-              <span>{formatCurrencyBRL(Number(service.materialCost))}</span>
-            </div>
-          )}
         </div>
       </div>
 

@@ -11,6 +11,7 @@ export const quotationItemInputSchema = z.object({
 export const quotationSchema = z.object({
   clientId: z.string().optional(),
   clientNameSnapshot: z.string().trim().optional(),
+  serviceId: z.string().optional(),
   notes: z.string().trim().optional(),
   discountPercent: z.coerce.number().min(0).max(100).optional(),
   items: z

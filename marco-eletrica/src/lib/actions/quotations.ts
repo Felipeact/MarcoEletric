@@ -26,6 +26,7 @@ function parseQuotationFormData(formData: FormData) {
   return quotationSchema.safeParse({
     clientId: emptyToUndefined(formData.get("clientId")),
     clientNameSnapshot: emptyToUndefined(formData.get("clientNameSnapshot")),
+    serviceId: emptyToUndefined(formData.get("serviceId")),
     notes: emptyToUndefined(formData.get("notes")),
     discountPercent: emptyToUndefined(formData.get("discountPercent")),
     items,
@@ -52,13 +53,14 @@ export async function createQuotation(
     return { error: parsed.error.issues[0]?.message ?? "Dados inválidos." };
   }
 
-  const { clientId, clientNameSnapshot, notes, discountPercent, items } =
+  const { clientId, clientNameSnapshot, serviceId, notes, discountPercent, items } =
     parsed.data;
 
   const quotation = await prisma.quotation.create({
     data: {
       clientId,
       clientNameSnapshot,
+      serviceId,
       notes,
       discountPercent,
       items: { create: withLineTotals(items) },
@@ -79,7 +81,7 @@ export async function updateQuotation(
     return { error: parsed.error.issues[0]?.message ?? "Dados inválidos." };
   }
 
-  const { clientId, clientNameSnapshot, notes, discountPercent, items } =
+  const { clientId, clientNameSnapshot, serviceId, notes, discountPercent, items } =
     parsed.data;
 
   await prisma.$transaction([
@@ -89,6 +91,7 @@ export async function updateQuotation(
       data: {
         clientId: clientId ?? null,
         clientNameSnapshot: clientNameSnapshot ?? null,
+        serviceId: serviceId ?? null,
         notes: notes ?? null,
         discountPercent: discountPercent ?? null,
         items: { create: withLineTotals(items) },

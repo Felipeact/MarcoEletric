@@ -2,7 +2,12 @@ import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth/session";
 
 const ADMIN_SUBDOMAIN_PREFIX = "admin.";
-const PUBLIC_ADMIN_PATHS = ["/admin/login"];
+const PUBLIC_ADMIN_PATHS = [
+  "/admin/login",
+  "/admin/manifest.webmanifest",
+  "/admin/icon-192",
+  "/admin/icon-512",
+];
 
 export async function proxy(request: NextRequest) {
   const host = request.headers.get("host") ?? "";

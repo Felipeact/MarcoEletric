@@ -28,7 +28,6 @@ type Service = {
   performedAt: Date;
   status: string;
   marginPercent: unknown;
-  materialCost: unknown;
   hasWarranty: boolean;
   warrantyMonths: number | null;
   completionReport: string | null;
@@ -205,41 +204,21 @@ export function ServiceForm({
           ))}
         </div>
 
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          <div>
-            <label htmlFor="marginPercent" className={labelClass}>
-              Margem de lucro (%)
-            </label>
-            <input
-              id="marginPercent"
-              name="marginPercent"
-              type="number"
-              min="0"
-              step="0.1"
-              value={marginPercent}
-              onChange={(e) => setMarginPercent(e.target.value)}
-              placeholder="0"
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label htmlFor="materialCost" className={labelClass}>
-              Custo de material (opcional)
-            </label>
-            <input
-              id="materialCost"
-              name="materialCost"
-              type="number"
-              step="0.01"
-              min="0"
-              defaultValue={
-                service?.materialCost != null
-                  ? Number(service.materialCost)
-                  : undefined
-              }
-              className={inputClass}
-            />
-          </div>
+        <div className="mt-4 max-w-xs">
+          <label htmlFor="marginPercent" className={labelClass}>
+            Margem de lucro (%)
+          </label>
+          <input
+            id="marginPercent"
+            name="marginPercent"
+            type="number"
+            min="0"
+            step="0.1"
+            value={marginPercent}
+            onChange={(e) => setMarginPercent(e.target.value)}
+            placeholder="0"
+            className={inputClass}
+          />
         </div>
 
         <div className="mt-4 space-y-1 border-t border-slate-100 pt-4 text-sm">
@@ -296,6 +275,18 @@ export function ServiceForm({
             defaultValue={service?.completionReport ?? ""}
             className={inputClass}
           />
+          {mode === "edit" && service && (
+            <p className="mt-3 text-sm text-slate-600">
+              Se ainda faltar trabalho a fazer,{" "}
+              <a
+                href={`/admin/orcamentos/novo?clientId=${clientId}&serviceId=${service.id}`}
+                className="font-medium text-brand-600 hover:text-brand-700"
+              >
+                crie um novo orçamento referente a este serviço
+              </a>
+              .
+            </p>
+          )}
         </div>
       )}
 

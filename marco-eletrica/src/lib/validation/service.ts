@@ -28,7 +28,6 @@ export const serviceSchema = z.object({
     .array(serviceItemInputSchema)
     .min(1, "Adicione ao menos um item ao valor do serviço."),
   marginPercent: z.coerce.number().min(0).max(1000).optional(),
-  materialCost: z.coerce.number().min(0).optional(),
   hasWarranty: z.boolean(),
   warrantyMonths: z.coerce.number().int().min(1).optional(),
   completionReport: z.string().trim().optional(),
