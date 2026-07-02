@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { formatCurrencyBRL } from "@/lib/format";
-import { togglePriceItemActive } from "@/lib/actions/priceItems";
+import { deletePriceItem, togglePriceItemActive } from "@/lib/actions/priceItems";
 import { buttonPrimaryClass, cardClass } from "@/components/admin/ui/formStyles";
+import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 
 export default async function PrecosPage() {
   const items = await prisma.priceItem.findMany({
@@ -84,12 +85,22 @@ export default async function PrecosPage() {
                         </form>
                       </td>
                       <td className="px-6 py-3 text-right">
-                        <Link
-                          href={`/admin/precos/${item.id}/editar`}
-                          className="text-sm font-medium text-brand-600 hover:text-brand-700"
-                        >
-                          Editar
-                        </Link>
+                        <div className="flex items-center justify-end gap-3">
+                          <Link
+                            href={`/admin/precos/${item.id}/editar`}
+                            className="text-sm font-medium text-brand-600 hover:text-brand-700"
+                          >
+                            Editar
+                          </Link>
+                          <form action={deletePriceItem.bind(null, item.id)}>
+                            <ConfirmSubmitButton
+                              confirmMessage={`Excluir "${item.name}" da tabela de preços?`}
+                              className="text-sm font-medium text-red-600 hover:text-red-700"
+                            >
+                              Excluir
+                            </ConfirmSubmitButton>
+                          </form>
+                        </div>
                       </td>
                     </tr>
                   ))}
