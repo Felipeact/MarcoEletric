@@ -17,6 +17,7 @@ export const SERVICE_STATUS_LABELS: Record<string, string> = {
 export const serviceItemInputSchema = z.object({
   description: z.string().trim().min(1),
   amount: z.coerce.number().min(0),
+  marginPercent: z.coerce.number().min(0).max(1000).optional(),
 });
 
 export const serviceSchema = z.object({
@@ -27,7 +28,6 @@ export const serviceSchema = z.object({
   items: z
     .array(serviceItemInputSchema)
     .min(1, "Adicione ao menos um item ao valor do serviço."),
-  marginPercent: z.coerce.number().min(0).max(1000).optional(),
   hasWarranty: z.boolean(),
   warrantyMonths: z.coerce.number().int().min(1).optional(),
   completionReport: z.string().trim().optional(),

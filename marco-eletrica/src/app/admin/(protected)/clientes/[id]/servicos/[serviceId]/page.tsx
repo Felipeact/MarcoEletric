@@ -107,32 +107,40 @@ export default async function ServiceDetailPage({
           Itens do preço
         </h2>
         <table className="mt-3 w-full text-left text-sm">
+          <thead className="text-xs font-semibold uppercase text-slate-500">
+            <tr>
+              <th className="py-1.5">Item</th>
+              <th className="py-1.5 text-right">Custo</th>
+              <th className="py-1.5 text-right">Margem</th>
+              <th className="py-1.5 text-right">Valor final</th>
+            </tr>
+          </thead>
           <tbody className="divide-y divide-slate-100">
-            {service.items.map((item) => (
-              <tr key={item.id}>
-                <td className="py-1.5">{item.description}</td>
-                <td className="py-1.5 text-right">
-                  {formatCurrencyBRL(Number(item.amount))}
-                </td>
-              </tr>
-            ))}
+            {service.items.map((item) => {
+              const margin = item.marginPercent != null ? Number(item.marginPercent) : 0;
+              const itemFinal = Number(item.amount) * (1 + margin / 100);
+              return (
+                <tr key={item.id}>
+                  <td className="py-1.5">{item.description}</td>
+                  <td className="py-1.5 text-right">
+                    {formatCurrencyBRL(Number(item.amount))}
+                  </td>
+                  <td className="py-1.5 text-right text-slate-500">
+                    {margin > 0 ? `${margin}%` : "—"}
+                  </td>
+                  <td className="py-1.5 text-right font-medium text-slate-900">
+                    {formatCurrencyBRL(itemFinal)}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
         <div className="mt-3 space-y-1 border-t border-slate-100 pt-3 text-sm">
           <div className="flex justify-between text-slate-600">
-            <span>Subtotal</span>
+            <span>Subtotal (custo)</span>
             <span>{formatCurrencyBRL(subtotal)}</span>
           </div>
-          {service.marginPercent != null && (
-            <div className="flex justify-between text-slate-600">
-              <span>Margem ({Number(service.marginPercent)}%)</span>
-              <span>
-                {formatCurrencyBRL(
-                  Number(service.laborValue) - subtotal,
-                )}
-              </span>
-            </div>
-          )}
           <div className="flex justify-between text-base font-semibold text-slate-900">
             <span>Valor cobrado (mão de obra)</span>
             <span>{formatCurrencyBRL(Number(service.laborValue))}</span>

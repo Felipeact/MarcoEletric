@@ -39,7 +39,6 @@ model Service {
   completionReport String? @db.Text
 
   laborValue    Decimal  @db.Decimal(10, 2)
-  marginPercent Decimal? @db.Decimal(5, 2)
 
   hasWarranty    Boolean   @default(false)
   warrantyMonths Int?
@@ -57,11 +56,12 @@ model Service {
 }
 
 model ServiceItem {
-  id          String  @id @default(cuid())
-  serviceId   String
-  service     Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-  description String
-  amount      Decimal @db.Decimal(10, 2)
+  id            String   @id @default(cuid())
+  serviceId     String
+  service       Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  description   String
+  amount        Decimal  @db.Decimal(10, 2)
+  marginPercent Decimal? @db.Decimal(5, 2)
 
   @@index([serviceId])
 }
