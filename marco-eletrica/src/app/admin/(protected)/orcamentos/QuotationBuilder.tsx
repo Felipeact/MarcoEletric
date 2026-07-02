@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useMemo, useState } from "react";
 import {
   createQuotation,
@@ -50,6 +51,13 @@ type InitialQuotation = {
   }[];
 };
 
+type LinkedService = {
+  id: string;
+  serviceNumber: number;
+  title: string;
+  clientId: string;
+};
+
 const initialState: QuotationActionState = {};
 
 let keyCounter = 0;
@@ -64,12 +72,14 @@ export function QuotationBuilder({
   catalog,
   defaultClientId,
   quotation,
+  linkedService,
 }: {
   mode: "create" | "edit";
   clients: ClientOption[];
   catalog: CatalogItem[];
   defaultClientId?: string;
   quotation?: InitialQuotation;
+  linkedService?: LinkedService;
 }) {
   const action =
     mode === "create" ? createQuotation : updateQuotation.bind(null, quotation!.id);
@@ -169,6 +179,22 @@ export function QuotationBuilder({
   return (
     <form action={formAction} className="space-y-6">
       <input type="hidden" name="itemsJson" value={itemsJson} />
+      {linkedService && (
+        <input type="hidden" name="serviceId" value={linkedService.id} />
+      )}
+
+      {linkedService && (
+        <div className="rounded-xl border border-brand-200 bg-brand-50/60 px-4 py-3 text-sm text-brand-900">
+          Referente ao serviço{" "}
+          <Link
+            href={`/admin/clientes/${linkedService.clientId}/servicos/${linkedService.id}`}
+            className="font-semibold underline hover:text-brand-700"
+          >
+            #{String(linkedService.serviceNumber).padStart(4, "0")} —{" "}
+            {linkedService.title}
+          </Link>
+        </div>
+      )}
 
       <div className={`${cardClass} space-y-4`}>
         <h2 className="text-sm font-semibold uppercase text-slate-500">

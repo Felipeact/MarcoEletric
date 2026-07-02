@@ -24,7 +24,7 @@ export default async function OrcamentoDetailPage({
 
   const quotation = await prisma.quotation.findUnique({
     where: { id },
-    include: { client: true, items: true },
+    include: { client: true, items: true, service: true },
   });
   if (!quotation) notFound();
 
@@ -40,10 +40,24 @@ export default async function OrcamentoDetailPage({
     <div className="max-w-2xl">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">{clientLabel}</h1>
+          <h1 className="text-2xl font-bold text-slate-900">
+            #{String(quotation.quotationNumber).padStart(4, "0")} — {clientLabel}
+          </h1>
           <p className="mt-1 text-sm text-slate-500">
             Orçamento criado em {formatDateBR(quotation.createdAt)}
           </p>
+          {quotation.service && (
+            <p className="mt-1 text-sm text-slate-500">
+              Referente ao serviço{" "}
+              <Link
+                href={`/admin/clientes/${quotation.service.clientId}/servicos/${quotation.service.id}`}
+                className="font-medium text-brand-600 hover:text-brand-700"
+              >
+                #{String(quotation.service.serviceNumber).padStart(4, "0")} —{" "}
+                {quotation.service.title}
+              </Link>
+            </p>
+          )}
         </div>
         <div className="flex gap-2">
           <a

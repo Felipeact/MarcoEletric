@@ -2,11 +2,29 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { formatCurrencyBRL } from "@/lib/format";
 import { deletePriceItem, togglePriceItemActive } from "@/lib/actions/priceItems";
-import { buttonPrimaryClass, cardClass } from "@/components/admin/ui/formStyles";
+import {
+  buttonPrimaryClass,
+  cardClass,
+  inputClass,
+} from "@/components/admin/ui/formStyles";
 import { ConfirmSubmitButton } from "@/components/admin/ConfirmSubmitButton";
 
-export default async function PrecosPage() {
+export default async function PrecosPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
+
   const items = await prisma.priceItem.findMany({
+    where: q
+      ? {
+          OR: [
+            { name: { contains: q, mode: "insensitive" } },
+            { category: { contains: q, mode: "insensitive" } },
+          ],
+        }
+      : undefined,
     orderBy: [{ category: "asc" }, { name: "asc" }],
   });
 
@@ -27,6 +45,22 @@ export default async function PrecosPage() {
           Novo item
         </Link>
       </div>
+
+      <form className="mt-6 max-w-sm">
+        <input
+          type="search"
+          name="q"
+          defaultValue={q ?? ""}
+          placeholder="Buscar por nome ou categoria..."
+          className={inputClass}
+        />
+      </form>
+
+      {items.length === 0 && (
+        <p className="mt-6 text-sm text-slate-500">
+          Nenhum item encontrado{q ? ` para "${q}"` : ""}.
+        </p>
+      )}
 
       <div className="mt-6 space-y-8">
         {Array.from(byCategory.entries()).map(([category, categoryItems]) => (

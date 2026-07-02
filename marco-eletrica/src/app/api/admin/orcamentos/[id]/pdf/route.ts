@@ -20,7 +20,7 @@ export async function GET(
   const { id } = await params;
   const quotation = await prisma.quotation.findUnique({
     where: { id },
-    include: { client: true, items: true },
+    include: { client: true, items: true, service: true },
   });
 
   if (!quotation) {
@@ -34,6 +34,7 @@ export async function GET(
     QuotationDocument({
       quotation: {
         id: quotation.id,
+        quotationNumber: quotation.quotationNumber,
         status: quotation.status,
         createdAt: quotation.createdAt,
         notes: quotation.notes,
@@ -44,6 +45,9 @@ export async function GET(
           quotation.client?.name ?? quotation.clientNameSnapshot ?? "Cliente",
         clientPhone: quotation.client?.phone ?? null,
         clientAddress: quotation.client?.address ?? null,
+        serviceReference: quotation.service
+          ? `#${String(quotation.service.serviceNumber).padStart(4, "0")} — ${quotation.service.title}`
+          : null,
         items: quotation.items.map((item) => ({
           descriptionSnapshot: item.descriptionSnapshot,
           unitSnapshot: item.unitSnapshot,
