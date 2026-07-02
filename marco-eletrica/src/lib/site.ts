@@ -13,7 +13,7 @@ export const siteConfig = {
     "Eletricista profissional em São Paulo e região. Instalações elétricas residenciais, comerciais e industriais, instalação de carregadores para carros elétricos, manutenção preventiva e corretiva, troca de quadros e disjuntores, iluminação LED e automação. Serviço certificado (NR-10) e atendimento ágil.",
 
   // URL pública usada para SEO (Open Graph, sitemap, etc.)
-  url: "https://marcoeletrica.com.br",
+  url: "https://marceletrica.com",
 
   // Profissional responsável
   owner: "Marco Aurélio",
