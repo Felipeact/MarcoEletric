@@ -19,7 +19,7 @@ import {
   labelClass,
 } from "@/components/admin/ui/formStyles";
 
-type ServiceItem = { description: string; amount: unknown };
+type ServiceItem = { description: string; amount: unknown; marginPercent: unknown };
 
 type Service = {
   id: string;
@@ -27,7 +27,6 @@ type Service = {
   description: string | null;
   performedAt: Date;
   status: string;
-  marginPercent: unknown;
   hasWarranty: boolean;
   warrantyMonths: number | null;
   completionReport: string | null;
@@ -63,26 +62,33 @@ export function ServiceForm({
 
   const [hasWarranty, setHasWarranty] = useState(service?.hasWarranty ?? false);
   const [status, setStatus] = useState(service?.status ?? "aberto");
-  const [marginPercent, setMarginPercent] = useState(
-    service?.marginPercent != null ? String(service.marginPercent) : "",
-  );
   const [items, setItems] = useState(
     () =>
       service?.items.map((item) => ({
         key: newKey(),
         description: item.description,
         amount: Number(item.amount),
-      })) ?? [{ key: newKey(), description: "Mão de obra", amount: 0 }],
+        marginPercent: item.marginPercent != null ? Number(item.marginPercent) : 0,
+      })) ?? [{ key: newKey(), description: "Mão de obra", amount: 0, marginPercent: 0 }],
   );
 
   const subtotal = items.reduce((sum, item) => sum + (item.amount || 0), 0);
-  const finalPrice = subtotal * (1 + (Number(marginPercent) || 0) / 100);
+  const finalPrice = items.reduce(
+    (sum, item) => sum + (item.amount || 0) * (1 + (item.marginPercent || 0) / 100),
+    0,
+  );
 
   function addItem() {
-    setItems((prev) => [...prev, { key: newKey(), description: "", amount: 0 }]);
+    setItems((prev) => [
+      ...prev,
+      { key: newKey(), description: "", amount: 0, marginPercent: 0 },
+    ]);
   }
 
-  function updateItem(key: string, patch: Partial<{ description: string; amount: number }>) {
+  function updateItem(
+    key: string,
+    patch: Partial<{ description: string; amount: number; marginPercent: number }>,
+  ) {
     setItems((prev) =>
       prev.map((item) => (item.key === key ? { ...item, ...patch } : item)),
     );
@@ -93,7 +99,11 @@ export function ServiceForm({
   }
 
   const itemsJson = JSON.stringify(
-    items.map((item) => ({ description: item.description, amount: item.amount })),
+    items.map((item) => ({
+      description: item.description,
+      amount: item.amount,
+      marginPercent: item.marginPercent,
+    })),
   );
 
   return (
@@ -170,60 +180,73 @@ export function ServiceForm({
           </button>
         </div>
         <p className="mt-1 text-xs text-slate-500">
-          Ex: mão de obra, taxa de deslocamento, taxa de combustível...
+          Ex: mão de obra, taxa de deslocamento, taxa de combustível. Cada item
+          pode ter sua própria margem de lucro.
         </p>
 
         <div className="mt-3 space-y-2">
-          {items.map((item) => (
-            <div key={item.key} className="flex items-center gap-2">
-              <input
-                type="text"
-                value={item.description}
-                onChange={(e) => updateItem(item.key, { description: e.target.value })}
-                placeholder="Descrição do item"
-                className={`${inputClass} mt-0`}
-              />
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={item.amount}
-                onChange={(e) =>
-                  updateItem(item.key, { amount: Number(e.target.value) })
-                }
-                className={`${inputClass} mt-0 w-32`}
-              />
-              <button
-                type="button"
-                onClick={() => removeItem(item.key)}
-                className="text-sm font-medium text-red-600 hover:text-red-700"
+          {items.map((item) => {
+            const itemFinal =
+              (item.amount || 0) * (1 + (item.marginPercent || 0) / 100);
+            return (
+              <div
+                key={item.key}
+                className="flex flex-wrap items-center gap-2 rounded-lg border border-slate-100 p-2 sm:flex-nowrap sm:border-0 sm:p-0"
               >
-                Remover
-              </button>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-4 max-w-xs">
-          <label htmlFor="marginPercent" className={labelClass}>
-            Margem de lucro (%)
-          </label>
-          <input
-            id="marginPercent"
-            name="marginPercent"
-            type="number"
-            min="0"
-            step="0.1"
-            value={marginPercent}
-            onChange={(e) => setMarginPercent(e.target.value)}
-            placeholder="0"
-            className={inputClass}
-          />
+                <input
+                  type="text"
+                  value={item.description}
+                  onChange={(e) =>
+                    updateItem(item.key, { description: e.target.value })
+                  }
+                  placeholder="Descrição do item"
+                  className={`${inputClass} mt-0 min-w-[10rem] flex-1`}
+                />
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={item.amount}
+                  onChange={(e) =>
+                    updateItem(item.key, { amount: Number(e.target.value) })
+                  }
+                  placeholder="Custo (R$)"
+                  className={`${inputClass} mt-0 w-28`}
+                />
+                <div className="flex items-center gap-1">
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    value={item.marginPercent}
+                    onChange={(e) =>
+                      updateItem(item.key, {
+                        marginPercent: Number(e.target.value),
+                      })
+                    }
+                    placeholder="Margem"
+                    className={`${inputClass} mt-0 w-20`}
+                  />
+                  <span className="text-sm text-slate-400">%</span>
+                </div>
+                <span className="w-28 shrink-0 text-right text-sm font-medium text-slate-900">
+                  {formatCurrencyBRL(itemFinal)}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => removeItem(item.key)}
+                  className="text-sm font-medium text-red-600 hover:text-red-700"
+                >
+                  Remover
+                </button>
+              </div>
+            );
+          })}
         </div>
 
         <div className="mt-4 space-y-1 border-t border-slate-100 pt-4 text-sm">
           <div className="flex justify-between text-slate-600">
-            <span>Subtotal dos itens</span>
+            <span>Subtotal dos itens (custo)</span>
             <span>{formatCurrencyBRL(subtotal)}</span>
           </div>
           <div className="flex justify-between text-base font-semibold text-slate-900">

@@ -30,20 +30,18 @@ function parseServiceFormData(formData: FormData) {
     performedAt: formData.get("performedAt"),
     status: formData.get("status") || "aberto",
     items,
-    marginPercent: emptyToUndefined(formData.get("marginPercent")),
     hasWarranty: formData.get("hasWarranty") === "on",
     warrantyMonths: emptyToUndefined(formData.get("warrantyMonths")),
     completionReport: emptyToUndefined(formData.get("completionReport")),
   });
 }
 
-function computeLaborValue(
-  items: ServiceItemInput[],
-  marginPercent: number | undefined,
-) {
-  const subtotal = items.reduce((sum, item) => sum + item.amount, 0);
-  const withMargin = subtotal * (1 + (marginPercent ?? 0) / 100);
-  return Math.round(withMargin * 100) / 100;
+function computeLaborValue(items: ServiceItemInput[]) {
+  const total = items.reduce(
+    (sum, item) => sum + item.amount * (1 + (item.marginPercent ?? 0) / 100),
+    0,
+  );
+  return Math.round(total * 100) / 100;
 }
 
 export async function createService(
@@ -61,7 +59,7 @@ export async function createService(
     data.hasWarranty && data.warrantyMonths
       ? addMonths(data.performedAt, data.warrantyMonths)
       : null;
-  const laborValue = computeLaborValue(data.items, data.marginPercent);
+  const laborValue = computeLaborValue(data.items);
 
   await prisma.service.create({
     data: {
@@ -73,7 +71,6 @@ export async function createService(
       completionReport:
         data.status === "concluido" ? data.completionReport : undefined,
       laborValue,
-      marginPercent: data.marginPercent,
       hasWarranty: data.hasWarranty,
       warrantyMonths: data.hasWarranty ? data.warrantyMonths : null,
       warrantyUntil,
@@ -81,6 +78,7 @@ export async function createService(
         create: data.items.map((item) => ({
           description: item.description,
           amount: item.amount,
+          marginPercent: item.marginPercent,
         })),
       },
     },
@@ -107,7 +105,7 @@ export async function updateService(
     data.hasWarranty && data.warrantyMonths
       ? addMonths(data.performedAt, data.warrantyMonths)
       : null;
-  const laborValue = computeLaborValue(data.items, data.marginPercent);
+  const laborValue = computeLaborValue(data.items);
 
   await prisma.$transaction([
     prisma.serviceItem.deleteMany({ where: { serviceId } }),
@@ -121,7 +119,6 @@ export async function updateService(
         completionReport:
           data.status === "concluido" ? data.completionReport : null,
         laborValue,
-        marginPercent: data.marginPercent,
         hasWarranty: data.hasWarranty,
         warrantyMonths: data.hasWarranty ? data.warrantyMonths : null,
         warrantyUntil,
@@ -129,6 +126,7 @@ export async function updateService(
           create: data.items.map((item) => ({
             description: item.description,
             amount: item.amount,
+            marginPercent: item.marginPercent,
           })),
         },
       },
