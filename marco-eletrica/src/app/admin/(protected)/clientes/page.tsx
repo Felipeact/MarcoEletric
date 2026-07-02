@@ -73,6 +73,11 @@ export default async function ClientesPage({
                     >
                       {client.name}
                     </Link>
+                    {client.isDemo && (
+                      <span className="ml-2 inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+                        Demo
+                      </span>
+                    )}
                   </td>
                   <td className="px-6 py-4 text-slate-600">{client.phone}</td>
                   <td className="px-6 py-4 text-slate-600">

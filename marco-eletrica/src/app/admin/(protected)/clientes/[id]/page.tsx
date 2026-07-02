@@ -44,6 +44,11 @@ export default async function ClienteDetailPage({
             >
               {client.active ? "Ativo" : "Inativo"}
             </span>
+            {client.isDemo && (
+              <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700">
+                Demo — não conta no dashboard
+              </span>
+            )}
           </div>
           <p className="mt-1 text-sm text-slate-500">{client.phone}</p>
         </div>

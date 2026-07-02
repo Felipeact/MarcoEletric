@@ -20,6 +20,7 @@ type Client = {
   email: string | null;
   address: string | null;
   notes: string | null;
+  isDemo: boolean;
 };
 
 const initialState: ClientActionState = {};
@@ -101,6 +102,20 @@ export function ClientForm({
           defaultValue={client?.notes ?? ""}
           className={inputClass}
         />
+      </div>
+      <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3">
+        <input
+          id="isDemo"
+          name="isDemo"
+          type="checkbox"
+          defaultChecked={client?.isDemo ?? false}
+          className="mt-0.5 h-4 w-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500"
+        />
+        <label htmlFor="isDemo" className="text-sm text-amber-900">
+          <span className="font-medium">Cliente demo</span> — use para testar o
+          painel. Serviços e orçamentos deste cliente não entram nos números
+          do dashboard.
+        </label>
       </div>
       {state.error && (
         <p className="text-sm font-medium text-red-600">{state.error}</p>

@@ -233,60 +233,62 @@ export function ServiceForm({
         </div>
       </div>
 
-      <div className="flex items-center gap-2 border-t border-slate-100 pt-4">
-        <input
-          id="hasWarranty"
-          name="hasWarranty"
-          type="checkbox"
-          checked={hasWarranty}
-          onChange={(e) => setHasWarranty(e.target.checked)}
-          className="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500"
-        />
-        <label htmlFor="hasWarranty" className="text-sm font-medium text-slate-700">
-          Este serviço tem garantia
-        </label>
-      </div>
-      {hasWarranty && (
-        <div className="max-w-xs">
-          <label htmlFor="warrantyMonths" className={labelClass}>
-            Garantia (meses)
-          </label>
-          <input
-            id="warrantyMonths"
-            name="warrantyMonths"
-            type="number"
-            min="1"
-            defaultValue={service?.warrantyMonths ?? 12}
-            className={inputClass}
-          />
-        </div>
-      )}
-
       {status === "concluido" && (
-        <div>
-          <label htmlFor="completionReport" className={labelClass}>
-            Relatório do que foi feito
-          </label>
-          <textarea
-            id="completionReport"
-            name="completionReport"
-            rows={4}
-            placeholder="Descreva o que foi executado neste serviço..."
-            defaultValue={service?.completionReport ?? ""}
-            className={inputClass}
-          />
-          {mode === "edit" && service && (
-            <p className="mt-3 text-sm text-slate-600">
-              Se ainda faltar trabalho a fazer,{" "}
-              <a
-                href={`/admin/orcamentos/novo?clientId=${clientId}&serviceId=${service.id}`}
-                className="font-medium text-brand-600 hover:text-brand-700"
-              >
-                crie um novo orçamento referente a este serviço
-              </a>
-              .
-            </p>
+        <div className="space-y-4 border-t border-slate-100 pt-4">
+          <div className="flex items-center gap-2">
+            <input
+              id="hasWarranty"
+              name="hasWarranty"
+              type="checkbox"
+              checked={hasWarranty}
+              onChange={(e) => setHasWarranty(e.target.checked)}
+              className="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500"
+            />
+            <label htmlFor="hasWarranty" className="text-sm font-medium text-slate-700">
+              Este serviço tem garantia
+            </label>
+          </div>
+          {hasWarranty && (
+            <div className="max-w-xs">
+              <label htmlFor="warrantyMonths" className={labelClass}>
+                Garantia (meses)
+              </label>
+              <input
+                id="warrantyMonths"
+                name="warrantyMonths"
+                type="number"
+                min="1"
+                defaultValue={service?.warrantyMonths ?? 12}
+                className={inputClass}
+              />
+            </div>
           )}
+
+          <div>
+            <label htmlFor="completionReport" className={labelClass}>
+              Relatório do que foi feito
+            </label>
+            <textarea
+              id="completionReport"
+              name="completionReport"
+              rows={4}
+              placeholder="Descreva o que foi executado neste serviço..."
+              defaultValue={service?.completionReport ?? ""}
+              className={inputClass}
+            />
+            {mode === "edit" && service && (
+              <p className="mt-3 text-sm text-slate-600">
+                Se ainda faltar trabalho a fazer,{" "}
+                <a
+                  href={`/admin/orcamentos/novo?clientId=${clientId}&serviceId=${service.id}`}
+                  className="font-medium text-brand-600 hover:text-brand-700"
+                >
+                  crie um novo orçamento referente a este serviço
+                </a>
+                .
+              </p>
+            )}
+          </div>
         </div>
       )}
 
