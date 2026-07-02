@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Users, Wallet, TrendingUp, FileClock } from "lucide-react";
 import { getDashboardData } from "@/lib/dashboard";
 import { formatCurrencyBRL, formatDateBR } from "@/lib/format";
 import { StatTile } from "@/components/admin/StatTile";
@@ -20,20 +21,28 @@ export default async function AdminDashboardPage() {
         <StatTile
           label="Novos clientes no mês"
           value={String(kpis.newClientsThisMonth)}
+          icon={Users}
+          tone="brand"
         />
         <StatTile
           label="Receita no mês"
           value={formatCurrencyBRL(kpis.revenueThisMonth)}
+          icon={Wallet}
+          tone="slate"
         />
         <StatTile
           label="Lucro no mês"
           value={formatCurrencyBRL(kpis.profitThisMonth)}
+          icon={TrendingUp}
+          tone="emerald"
         />
         <StatTile
           label="Orçamentos pendentes"
           value={`${kpis.pendingQuotationsCount} (${formatCurrencyBRL(
             kpis.pendingQuotationsValue,
           )})`}
+          icon={FileClock}
+          tone="amber"
         />
       </div>
 
