@@ -1,0 +1,17 @@
+export const galleryData: { imageUrl: string; caption: string | null }[] = [
+  { imageUrl: "/showcase/showcase1.JPG", caption: "Serviço elétrico realizado pela Marco Elétrica" },
+  { imageUrl: "/showcase/showcase2.JPG", caption: "Instalação elétrica profissional" },
+  { imageUrl: "/showcase/showcase3.JPG", caption: "Quadro de distribuição organizado" },
+  { imageUrl: "/showcase/showcase4.JPG", caption: "Manutenção elétrica" },
+  { imageUrl: "/showcase/showcase5.JPG", caption: "Instalação de iluminação" },
+  { imageUrl: "/showcase/showcase6.JPG", caption: "Trabalho elétrico concluído" },
+  { imageUrl: "/showcase/showcase7.JPG", caption: "Serviço de eletricista" },
+  { imageUrl: "/showcase/showcase8.JPG", caption: "Instalação elétrica residencial" },
+  { imageUrl: "/showcase/showcase9.JPG", caption: "Projeto elétrico executado" },
+  { imageUrl: "/showcase/showcase10.JPG", caption: "Instalação elétrica comercial" },
+  { imageUrl: "/showcase/showcase11.JPG", caption: "Serviço elétrico de qualidade" },
+  { imageUrl: "/showcase/showcase12.jpg", caption: "Antes e depois: iluminação de LED em banheiro" },
+  { imageUrl: "/showcase/showcase13.jpg", caption: "Antes e depois: troca de luminária no hall de entrada" },
+  { imageUrl: "/showcase/showcase14.jpg", caption: "Antes e depois: organização elétrica na área de serviço" },
+  { imageUrl: "/showcase/showcase15.jpg", caption: "Antes e depois: instalação de ponto de tomada" },
+];

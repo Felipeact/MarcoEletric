@@ -5,6 +5,18 @@ const nextConfig: NextConfig = {
   // reliably during the build (avoids TLS failures in sandboxed/CI environments).
   experimental: {
     turbopackUseSystemTlsCerts: true,
+    // Fotos de celular podem passar de 1MB (padrão do Next para Server Actions).
+    serverActions: {
+      bodySizeLimit: "10mb",
+    },
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "*.public.blob.vercel-storage.com",
+      },
+    ],
   },
 };
 

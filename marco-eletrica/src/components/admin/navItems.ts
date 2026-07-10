@@ -5,6 +5,7 @@ import {
   FileText,
   Tag,
   Receipt,
+  Image as ImageIcon,
   type LucideIcon,
 } from "lucide-react";
 
@@ -27,4 +28,5 @@ export const NAV_ITEMS: NavItem[] = [
     icon: Tag,
   },
   { href: "/admin/despesas", label: "Despesas", icon: Receipt },
+  { href: "/admin/galeria", label: "Galeria do site", shortLabel: "Galeria", icon: ImageIcon },
 ];

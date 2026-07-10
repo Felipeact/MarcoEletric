@@ -1,23 +1,14 @@
-"use client";
-
 import Image from "next/image";
+import { prisma } from "@/lib/db";
 import { Reveal } from "../ui/Reveal";
 
-const images = [
-  { src: "/showcase/showcase1.JPG", alt: "Serviço elétrico realizado pela Marco Elétrica" },
-  { src: "/showcase/showcase2.JPG", alt: "Instalação elétrica profissional" },
-  { src: "/showcase/showcase3.JPG", alt: "Quadro de distribuição organizado" },
-  { src: "/showcase/showcase4.JPG", alt: "Manutenção elétrica" },
-  { src: "/showcase/showcase5.JPG", alt: "Instalação de iluminação" },
-  { src: "/showcase/showcase6.JPG", alt: "Trabalho elétrico concluído" },
-  { src: "/showcase/showcase7.JPG", alt: "Serviço de eletricista" },
-  { src: "/showcase/showcase8.JPG", alt: "Instalação elétrica residencial" },
-  { src: "/showcase/showcase9.JPG", alt: "Projeto elétrico executado" },
-  { src: "/showcase/showcase10.JPG", alt: "Instalação elétrica comercial" },
-  { src: "/showcase/showcase11.JPG", alt: "Serviço elétrico de qualidade" },
-];
+export async function ShowCase() {
+  const items = await prisma.galleryItem.findMany({
+    orderBy: { createdAt: "desc" },
+  });
 
-export function ShowCase() {
+  if (items.length === 0) return null;
+
   return (
     <section id="galeria" className="bg-slate-900 py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
@@ -37,14 +28,14 @@ export function ShowCase() {
           className="mt-14 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4"
           delay={0.05}
         >
-          {images.map((image) => (
+          {items.map((item) => (
             <div
-              key={image.src}
+              key={item.id}
               className="group relative aspect-[4/3] overflow-hidden rounded-xl ring-1 ring-white/10"
             >
               <Image
-                src={image.src}
-                alt={image.alt}
+                src={item.imageUrl}
+                alt={item.caption ?? "Serviço elétrico realizado pela Marco Elétrica"}
                 fill
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 className="object-cover transition-transform duration-500 group-hover:scale-110"
