@@ -141,3 +141,15 @@ model GalleryItem {
 
   @@index([createdAt])
 }
+
+model BeforeAfterItem {
+  id              String   @id @default(cuid())
+  title           String
+  description     String   @db.Text
+  beforeImageUrl  String
+  afterImageUrl   String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([createdAt])
+}

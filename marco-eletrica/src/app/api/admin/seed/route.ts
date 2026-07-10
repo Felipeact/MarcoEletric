@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/auth/session";
 import { priceCatalogData } from "../../../../../prisma/priceCatalogData";
 import { galleryData } from "../../../../../prisma/galleryData";
+import { beforeAfterData } from "../../../../../prisma/beforeAfterData";
 
 export async function GET() {
   const cookieStore = await cookies();
@@ -36,9 +37,21 @@ export async function GET() {
     }
   }
 
+  let beforeAfterCreated = 0;
+  for (const item of beforeAfterData) {
+    const existing = await prisma.beforeAfterItem.findFirst({
+      where: { title: item.title },
+    });
+    if (!existing) {
+      await prisma.beforeAfterItem.create({ data: item });
+      beforeAfterCreated += 1;
+    }
+  }
+
   return NextResponse.json({
     priceItems: { total: priceCatalogData.length, created: priceItemsCreated },
     galleryItems: { total: galleryData.length, created: galleryItemsCreated },
-    message: `Catálogo: ${priceItemsCreated} de ${priceCatalogData.length} itens criados. Galeria: ${galleryItemsCreated} de ${galleryData.length} imagens criadas (os demais já existiam).`,
+    beforeAfterItems: { total: beforeAfterData.length, created: beforeAfterCreated },
+    message: `Catálogo: ${priceItemsCreated} de ${priceCatalogData.length} itens criados. Galeria: ${galleryItemsCreated} de ${galleryData.length} imagens criadas. Antes e depois: ${beforeAfterCreated} de ${beforeAfterData.length} projetos criados (os demais já existiam).`,
   });
 }

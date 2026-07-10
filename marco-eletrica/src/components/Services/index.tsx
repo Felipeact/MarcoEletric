@@ -1,26 +1,14 @@
-"use client";
-
+import { prisma } from "@/lib/db";
 import { ServiceCard } from "./ServiceCard";
 import { Reveal } from "../ui/Reveal";
 
-const projects = [
-  {
-    title: "Quadro de distribuição",
-    before: "/services/quadro-before.jpeg",
-    after: "/services/quadro-after.jpeg",
-    description:
-      "Readequação do quadro de distribuição com substituição de disjuntores para mais segurança e organização.",
-  },
-  {
-    title: "Iluminação comercial",
-    before: "/services/lights-before.jpeg",
-    after: "/services/lights-after.jpeg",
-    description:
-      "Modernização da iluminação com tecnologia LED, reduzindo o consumo e melhorando o ambiente.",
-  },
-];
+export async function Services() {
+  const projects = await prisma.beforeAfterItem.findMany({
+    orderBy: { createdAt: "desc" },
+  });
 
-export function Services() {
+  if (projects.length === 0) return null;
+
   return (
     <section className="bg-white py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
@@ -39,12 +27,12 @@ export function Services() {
 
         <div className="mx-auto mt-14 grid max-w-4xl grid-cols-1 gap-8 md:grid-cols-2">
           {projects.map((project, index) => (
-            <Reveal key={project.title} delay={index * 0.1}>
+            <Reveal key={project.id} delay={index * 0.1}>
               <ServiceCard
                 title={project.title}
                 description={project.description}
-                before={project.before}
-                after={project.after}
+                before={project.beforeImageUrl}
+                after={project.afterImageUrl}
               />
             </Reveal>
           ))}

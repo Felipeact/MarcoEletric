@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { priceCatalogData } from "./priceCatalogData";
 import { galleryData } from "./galleryData";
+import { beforeAfterData } from "./beforeAfterData";
 
 const prisma = new PrismaClient();
 
@@ -24,6 +25,16 @@ async function main() {
     }
   }
   console.log(`Galeria: ${galleryData.length} imagens verificadas/criadas.`);
+
+  for (const item of beforeAfterData) {
+    const existing = await prisma.beforeAfterItem.findFirst({
+      where: { title: item.title },
+    });
+    if (!existing) {
+      await prisma.beforeAfterItem.create({ data: item });
+    }
+  }
+  console.log(`Antes e depois: ${beforeAfterData.length} projetos verificados/criados.`);
 }
 
 main()
